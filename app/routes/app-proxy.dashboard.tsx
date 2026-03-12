@@ -1,6 +1,4 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { redirect } from "react-router";
-import { dashboardContextToken } from "../modules/b2b/services/dashboard-context-token.server";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({
@@ -12,19 +10,15 @@ export const loader = async ({
   const customerId = url.searchParams.get("logged_in_customer_id");
   const shop = url.searchParams.get("shop");
 
-  if (!customerId) {
-    const token = dashboardContextToken.create({
-      customerId: null,
-      shop,
-      ttlSeconds: 30,
-    });
-    throw redirect(`/b2b-dashboard?token=${encodeURIComponent(token)}`);
-  }
+  const html = customerId
+    ? `<h1>B2B Dashboard</h1><p>Shop: ${shop ?? "unknown"}</p><p>Customer ID: ${customerId}</p>`
+    : `<h1>B2B Dashboard</h1><p>Shop: ${shop ?? "unknown"}</p><p>No logged-in customer.</p>`;
 
-  const token = dashboardContextToken.create({
-    customerId,
-    shop,
+  return new Response(html, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-store",
+    },
   });
-
-  throw redirect(`/b2b-dashboard?token=${encodeURIComponent(token)}`);
 };

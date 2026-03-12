@@ -1,0 +1,13 @@
+---
+description: tRPC conventions for server routers and callers
+globs: app/server/trpc/**/*.ts
+alwaysApply: false
+---
+
+# tRPC Conventions
+
+- Keep procedures typed with Zod input schemas and clear return shapes.
+- Use tRPC for internal app APIs; keep Shopify webhook/proxy as plain route endpoints.
+- Build context from trusted request data (`shop`, `customerId`) provided by verified boundaries.
+- Procedures orchestrate services; repositories own all DB access.
+- Prefer incremental migration: route -> caller -> procedure -> service.

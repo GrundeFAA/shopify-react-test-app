@@ -5,13 +5,17 @@ alwaysApply: true
 
 # Backend Layering
 
-The valid data flow is: `route loader/action -> service -> repository -> database`
+The valid flows are:
+- Internal app APIs: `route -> tRPC router/procedure -> service -> repository -> database`
+- Shopify-required HTTP endpoints (webhooks/app proxy): `route -> service (or tRPC caller) -> repository -> database`
 
 - `repositories`: data access only. No business logic.
 - `services`: business workflows and orchestration. No direct `ctx.db` or `db.*` calls.
-- `route handlers`: input validation and transport only. No DB calls, no business logic.
+- `route handlers`: transport and trust-boundary validation only. No DB calls, no business logic.
+- `tRPC routers`: API contracts and orchestration. No direct `db.*` calls.
 
 **Never** call `db.*` directly inside a route loader/action.
+**Never** call `db.*` directly inside tRPC procedures.
 **Never** call `db.*` directly inside a service — call the appropriate repository method.
 
 ```ts
@@ -20,8 +24,11 @@ export const loader = async () => {
   return db.companyMember.findMany({ where: { status: "PENDING" } });
 };
 
-// GOOD — route delegates to service/repository
-export const loader = async () => membershipService.listPending();
+// GOOD — route delegates to tRPC/service layer
+export const loader = async ({ request }) => {
+  const caller = createTrpcCaller({ request });
+  return caller.b2b.listPending();
+};
 ```
 
 # Repository Conventions
@@ -41,3 +48,4 @@ export const loader = async () => membershipService.listPending();
 
 - Admin/internal operations must require authenticated app sessions.
 - Storefront endpoints must verify Shopify signatures (app proxy/webhooks) before processing.
+- Webhook/app proxy routes remain plain HTTP routes; do not expose Shopify delivery through tRPC transport.

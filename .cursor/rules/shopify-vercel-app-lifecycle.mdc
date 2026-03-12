@@ -14,6 +14,7 @@ alwaysApply: true
 - Shopify webhooks are HTTP POST endpoints in `app/routes/webhooks.*.tsx`.
 - Route handlers stay thin: authenticate/verify, delegate to service, return 200.
 - Business logic lives in services, not in the route handler.
+- tRPC can be used behind the route via a server-side caller, but Shopify still calls plain HTTP routes.
 
 ```ts
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -44,3 +45,4 @@ await membershipRequestRepository.ensurePendingRequest(db, { ... });
 
 - Log errors from all external Shopify API calls explicitly.
 - Never swallow errors silently in webhook handlers.
+- For webhook failures, return non-2xx so Shopify retries.

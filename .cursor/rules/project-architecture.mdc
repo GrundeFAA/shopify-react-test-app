@@ -15,7 +15,10 @@ alwaysApply: true
 
 # Stack Baseline
 
-- This app uses Shopify + React Router on Node, not Next.js or tRPC.
-- Use `app/routes` loaders/actions as transport boundaries.
-- Use `authenticate.admin`, `authenticate.public.appProxy`, and `authenticate.webhook` for trust boundaries.
+- This app uses Shopify + React Router on Node with tRPC for internal app APIs.
+- Keep structure explicit:
+  - `app/frontend` for UI/page components
+  - `app/server` for auth, DB, tRPC, services, repositories
+  - `app/routes` for transport boundaries
+- Use `authenticate.admin`, `authenticate.public.appProxy`, and `authenticate.webhook` as trust boundaries.
 - Keep Shopify-specific integrations thin and push domain logic to services.

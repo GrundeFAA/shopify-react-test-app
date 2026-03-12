@@ -1,0 +1,13 @@
+---
+description: Keep route files thin and boundary-focused
+globs: app/routes/**/*.tsx
+alwaysApply: false
+---
+
+# Route Boundary Rules
+
+- Treat routes as transport layers (HTTP in/out, auth checks, redirects, error mapping).
+- For app proxy and webhook routes, verify Shopify trust first, then delegate.
+- Prefer calling tRPC callers or services; avoid embedding domain logic in routes.
+- Never call `db.*` directly from route files.
+- For webhook failures, log and return non-2xx so retries can happen.

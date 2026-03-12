@@ -5,19 +5,9 @@ import { AppProxyDashboardPage } from "../frontend/pages/AppProxyDashboardPage";
 import { authenticate } from "../server/shopify.server";
 import { createTrpcCaller } from "../server/trpc/caller.server";
 
-type DashboardLoaderData = {
-  appUrl: string;
-  shop: string | null;
-  customerId: string | null;
-  membershipState: "PENDING_OR_MISSING" | "APPROVED" | null;
-  companyName: string | null;
-  orgNumber: string | null;
-  customerName: string | null;
-};
-
 export const loader = async ({
   request,
-}: LoaderFunctionArgs): Promise<DashboardLoaderData> => {
+}: LoaderFunctionArgs) => {
   await authenticate.public.appProxy(request);
 
   const url = new URL(request.url);
@@ -32,7 +22,7 @@ export const loader = async ({
     null;
   const caller = createTrpcCaller({ request, shop, customerId });
 
-  const dashboard = customerId ? await caller.b2b.getDashboardForContextCustomer() : null;
+  const dashboard = customerId && shop ? await caller.b2b.getDashboardForContextCustomer() : null;
   const membershipState = dashboard?.state ?? null;
   const companyName =
     dashboard?.state === "APPROVED"
@@ -42,7 +32,8 @@ export const loader = async ({
         : null;
   const orgNumber = dashboard?.state === "APPROVED" ? dashboard.company.orgNumber : null;
 
-  return {
+  return Response.json(
+    {
     appUrl: process.env.SHOPIFY_APP_URL ?? "",
     shop,
     customerId,
@@ -50,7 +41,13 @@ export const loader = async ({
     companyName,
     orgNumber,
     customerName,
-  };
+    },
+    {
+      headers: {
+        "Cache-Control": "no-store, private",
+      },
+    },
+  );
 };
 
 export default function AppProxyDashboard() {

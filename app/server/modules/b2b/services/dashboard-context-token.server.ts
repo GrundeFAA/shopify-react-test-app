@@ -63,7 +63,11 @@ export const dashboardContextToken = {
     }
 
     const payload = JSON.parse(fromBase64Url(payloadBase64Url)) as DashboardTokenPayload;
-    if (typeof payload.customerId === "undefined" || !payload.exp) {
+    if (
+      typeof payload.customerId === "undefined" ||
+      typeof payload.shop === "undefined" ||
+      !payload.exp
+    ) {
       throw new Error("Invalid dashboard token payload");
     }
 

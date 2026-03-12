@@ -1,6 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 
 type CreateMemberInput = {
+  shop: string;
   companyId: string;
   shopifyCustomerId: string;
   role: "ADMIN" | "USER";
@@ -8,9 +9,9 @@ type CreateMemberInput = {
 };
 
 export const companyMemberRepository = {
-  async findAnyByCustomer(db: PrismaClient, shopifyCustomerId: string) {
+  async findAnyByCustomer(db: PrismaClient, shop: string, shopifyCustomerId: string) {
     return db.companyMember.findFirst({
-      where: { shopifyCustomerId },
+      where: { shop, shopifyCustomerId },
       include: { company: true },
       orderBy: { createdAt: "asc" },
     });
@@ -18,12 +19,13 @@ export const companyMemberRepository = {
 
   async findByCompanyAndCustomer(
     db: PrismaClient,
+    shop: string,
     companyId: string,
     shopifyCustomerId: string,
   ) {
     return db.companyMember.findUnique({
       where: {
-        companyId_shopifyCustomerId: { companyId, shopifyCustomerId },
+        shop_companyId_shopifyCustomerId: { shop, companyId, shopifyCustomerId },
       },
     });
   },
@@ -46,21 +48,21 @@ export const companyMemberRepository = {
     });
   },
 
-  async countByCompany(db: PrismaClient, companyId: string) {
+  async countByCompany(db: PrismaClient, shop: string, companyId: string) {
     return db.companyMember.count({
-      where: { companyId },
+      where: { shop, companyId },
     });
   },
 
-  async countApprovedByCompany(db: PrismaClient, companyId: string) {
+  async countApprovedByCompany(db: PrismaClient, shop: string, companyId: string) {
     return db.companyMember.count({
-      where: { companyId, status: "APPROVED" },
+      where: { shop, companyId, status: "APPROVED" },
     });
   },
 
-  async listByCompany(db: PrismaClient, companyId: string) {
+  async listByCompany(db: PrismaClient, shop: string, companyId: string) {
     return db.companyMember.findMany({
-      where: { companyId },
+      where: { shop, companyId },
       orderBy: { createdAt: "asc" },
     });
   },

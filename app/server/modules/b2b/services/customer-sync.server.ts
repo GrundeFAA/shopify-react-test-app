@@ -69,7 +69,7 @@ function fallbackCompanyName(customer: ShopifyCustomerWebhookPayload): string {
 }
 
 export const customerSyncService = {
-  async syncFromShopifyWebhook(db: PrismaClient, payload: unknown) {
+  async syncFromShopifyWebhook(db: PrismaClient, payload: unknown, shop: string) {
     const customer = parseCustomerPayload(payload);
     if (!customer) {
       return { ok: false as const, reason: "missing_customer_id" };
@@ -77,6 +77,7 @@ export const customerSyncService = {
 
     const existingMember = await companyMemberRepository.findAnyByCustomer(
       db,
+      shop,
       customer.id,
     );
     if (existingMember) {
@@ -85,6 +86,7 @@ export const customerSyncService = {
       if (existingMember.status !== "APPROVED") {
         const approvedCount = await companyMemberRepository.countApprovedByCompany(
           db,
+          shop,
           existingMember.companyId,
         );
 
@@ -126,11 +128,13 @@ export const customerSyncService = {
 
     const existingApprovedMemberCount = await companyMemberRepository.countApprovedByCompany(
       db,
+      shop,
       company.id,
     );
     const isFirstApprovedMember = existingApprovedMemberCount === 0;
 
     const member = await companyMemberRepository.create(db, {
+      shop,
       companyId: company.id,
       shopifyCustomerId: customer.id,
       role: isFirstApprovedMember ? "ADMIN" : "USER",
@@ -139,6 +143,7 @@ export const customerSyncService = {
 
     if (!isFirstApprovedMember) {
       await membershipRequestRepository.ensurePending(db, {
+        shop,
         companyId: company.id,
         shopifyCustomerId: customer.id,
         reason: "Auto-created from Shopify customer webhook",

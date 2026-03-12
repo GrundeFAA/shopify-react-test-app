@@ -6,7 +6,6 @@ import { type EntryContext } from "react-router";
 import { isbot } from "isbot";
 import { addDocumentResponseHeaders } from "./server/shopify.server";
 
-// a comment
 export const streamTimeout = 5000;
 
 export default async function handleRequest(

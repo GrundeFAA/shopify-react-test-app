@@ -64,6 +64,7 @@ model Company {
 
 model CompanyMember {
   id                String           @id @default(cuid())
+  shop              String
   companyId         String
   shopifyCustomerId String
   role              MemberRole       @default(USER)
@@ -72,13 +73,14 @@ model CompanyMember {
   updatedAt         DateTime         @updatedAt
   company           Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  @@unique([companyId, shopifyCustomerId])
-  @@index([shopifyCustomerId])
+  @@unique([shop, companyId, shopifyCustomerId])
+  @@index([shop, shopifyCustomerId])
   @@index([status])
 }
 
 model MembershipRequest {
   id                String           @id @default(cuid())
+  shop              String
   companyId         String
   shopifyCustomerId String
   status            MembershipStatus @default(PENDING)
@@ -88,5 +90,5 @@ model MembershipRequest {
   company           Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@index([companyId, status])
-  @@index([shopifyCustomerId])
+  @@index([shop, shopifyCustomerId])
 }

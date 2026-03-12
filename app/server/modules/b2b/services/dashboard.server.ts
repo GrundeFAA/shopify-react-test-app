@@ -24,10 +24,12 @@ export type B2BDashboardData =
 export const dashboardService = {
   async getForCustomer(
     db: PrismaClient,
+    shop: string,
     shopifyCustomerId: string,
   ): Promise<B2BDashboardData> {
     const approvedMembership = await db.companyMember.findFirst({
       where: {
+        shop,
         shopifyCustomerId,
         status: "APPROVED",
       },
@@ -38,6 +40,7 @@ export const dashboardService = {
     if (!approvedMembership) {
       const pendingMembership = await db.companyMember.findFirst({
         where: {
+          shop,
           shopifyCustomerId,
           status: "PENDING",
         },
@@ -53,6 +56,7 @@ export const dashboardService = {
 
     const members = (await companyMemberRepository.listByCompany(
       db,
+      shop,
       approvedMembership.companyId,
     )) as Array<{
       id: string;

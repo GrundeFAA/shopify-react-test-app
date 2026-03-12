@@ -43,18 +43,21 @@ export const loader = async ({
   }
 
   let customerId: string | null;
+  let shop: string | null;
   try {
-    customerId = dashboardContextToken.verify(token).customerId;
+    const verified = dashboardContextToken.verify(token);
+    customerId = verified.customerId;
+    shop = verified.shop;
   } catch {
     return { state: "INVALID_REQUEST" };
   }
 
-  if (!customerId) {
+  if (!customerId || !shop) {
     return { state: "LOGIN_REQUIRED" };
   }
 
-  const caller = createTrpcCaller({ request, customerId });
-  const dashboard = await caller.b2b.getDashboardForCustomer({ customerId });
+  const caller = createTrpcCaller({ request, shop, customerId });
+  const dashboard = await caller.b2b.getDashboardForCustomer({ shop, customerId });
   if (dashboard.state === "PENDING_OR_MISSING") {
     return {
       state: "PENDING_OR_MISSING",

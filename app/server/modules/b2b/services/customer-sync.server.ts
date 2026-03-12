@@ -80,6 +80,30 @@ export const customerSyncService = {
       customer.id,
     );
     if (existingMember) {
+      // Auto-heal older pending records: if this company has no approved members yet,
+      // the existing member should become the first approved admin.
+      if (existingMember.status !== "APPROVED") {
+        const approvedCount = await companyMemberRepository.countApprovedByCompany(
+          db,
+          existingMember.companyId,
+        );
+
+        if (approvedCount === 0) {
+          const upgradedMember = await companyMemberRepository.updateRoleAndStatus(
+            db,
+            existingMember.id,
+            { role: "ADMIN", status: "APPROVED" },
+          );
+
+          return {
+            ok: true as const,
+            companyId: upgradedMember.companyId,
+            membershipId: upgradedMember.id,
+            status: upgradedMember.status,
+          };
+        }
+      }
+
       return {
         ok: true as const,
         companyId: existingMember.companyId,
@@ -100,20 +124,20 @@ export const customerSyncService = {
           name: normalized.companyName ?? fallbackCompanyName(customer),
         });
 
-    const existingCompanyMemberCount = await companyMemberRepository.countByCompany(
+    const existingApprovedMemberCount = await companyMemberRepository.countApprovedByCompany(
       db,
       company.id,
     );
-    const isFirstCompanyMember = existingCompanyMemberCount === 0;
+    const isFirstApprovedMember = existingApprovedMemberCount === 0;
 
     const member = await companyMemberRepository.create(db, {
       companyId: company.id,
       shopifyCustomerId: customer.id,
-      role: isFirstCompanyMember ? "ADMIN" : "USER",
-      status: isFirstCompanyMember ? "APPROVED" : "PENDING",
+      role: isFirstApprovedMember ? "ADMIN" : "USER",
+      status: isFirstApprovedMember ? "APPROVED" : "PENDING",
     });
 
-    if (!isFirstCompanyMember) {
+    if (!isFirstApprovedMember) {
       await membershipRequestRepository.ensurePending(db, {
         companyId: company.id,
         shopifyCustomerId: customer.id,

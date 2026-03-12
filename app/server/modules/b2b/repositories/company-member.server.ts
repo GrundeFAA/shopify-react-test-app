@@ -32,6 +32,20 @@ export const companyMemberRepository = {
     return db.companyMember.create({ data: input });
   },
 
+  async updateRoleAndStatus(
+    db: PrismaClient,
+    id: string,
+    input: { role: "ADMIN" | "USER"; status: "PENDING" | "APPROVED" | "DENIED" },
+  ) {
+    return db.companyMember.update({
+      where: { id },
+      data: {
+        role: input.role,
+        status: input.status,
+      },
+    });
+  },
+
   async countByCompany(db: PrismaClient, companyId: string) {
     return db.companyMember.count({
       where: { companyId },

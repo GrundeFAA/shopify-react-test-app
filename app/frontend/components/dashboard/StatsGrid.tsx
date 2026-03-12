@@ -1,9 +1,9 @@
 import { ClipboardDocumentListIcon, DocumentTextIcon, HeartIcon } from "@heroicons/react/24/outline";
 
 const statCards = [
-  { label: "Active Orders", value: "4", icon: ClipboardDocumentListIcon },
-  { label: "Open Quotes", value: "2", icon: DocumentTextIcon },
-  { label: "Wishlist", value: "2", icon: HeartIcon },
+  { label: "Aktive ordre", value: "4", icon: ClipboardDocumentListIcon },
+  { label: "Apne tilbud", value: "2", icon: DocumentTextIcon },
+  { label: "Onskeliste", value: "2", icon: HeartIcon },
 ];
 
 export function StatsGrid() {

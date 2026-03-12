@@ -1,9 +1,9 @@
 import { HomeIcon, ArrowPathRoundedSquareIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 
 const topActions = [
-  { label: "Reorder", icon: ArrowPathRoundedSquareIcon },
-  { label: "Address", icon: HomeIcon },
-  { label: "Account Details", icon: UserCircleIcon },
+  { label: "Bestill pa nytt", icon: ArrowPathRoundedSquareIcon },
+  { label: "Adresser", icon: HomeIcon },
+  { label: "Kontodetaljer", icon: UserCircleIcon },
 ];
 
 export function QuickActions() {

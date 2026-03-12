@@ -1,30 +1,42 @@
 import { ChevronDownIcon } from "@heroicons/react/16/solid";
 import {
+  ArchiveBoxIcon,
   BuildingOfficeIcon,
-  CreditCardIcon,
+  HomeIcon,
   UserIcon,
   UsersIcon,
 } from "@heroicons/react/20/solid";
 import { classNames } from "../../utils/classNames";
 
-const tabs = [
-  { name: "My Account", href: "#", icon: UserIcon, current: false },
-  { name: "Company", href: "#", icon: BuildingOfficeIcon, current: false },
-  { name: "Team Members", href: "#", icon: UsersIcon, current: true },
-  { name: "Billing", href: "#", icon: CreditCardIcon, current: false },
-];
+export type AccountTabId = "min-konto" | "selskap" | "brukere" | "adresser" | "ordrer";
 
-export function AccountTabs() {
+const tabs = [
+  { id: "min-konto", name: "Min konto", icon: UserIcon },
+  { id: "selskap", name: "Selskap", icon: BuildingOfficeIcon },
+  { id: "brukere", name: "Brukere", icon: UsersIcon },
+  { id: "adresser", name: "Adresser", icon: HomeIcon },
+  { id: "ordrer", name: "Ordrer", icon: ArchiveBoxIcon },
+] as const;
+
+type AccountTabsProps = {
+  activeTab: AccountTabId;
+  onTabChange: (tab: AccountTabId) => void;
+};
+
+export function AccountTabs({ activeTab, onTabChange }: AccountTabsProps) {
   return (
     <div>
       <div className="grid grid-cols-1 sm:hidden">
         <select
-          defaultValue={tabs.find((tab) => tab.current)?.name}
+          value={activeTab}
+          onChange={(event) => onTabChange(event.target.value as AccountTabId)}
           aria-label="Select a tab"
           className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-2 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
         >
           {tabs.map((tab) => (
-            <option key={tab.name}>{tab.name}</option>
+            <option key={tab.id} value={tab.id}>
+              {tab.name}
+            </option>
           ))}
         </select>
         <ChevronDownIcon
@@ -36,12 +48,13 @@ export function AccountTabs() {
         <div className="border-b border-gray-200">
           <nav aria-label="Tabs" className="-mb-px flex space-x-8">
             {tabs.map((tab) => (
-              <a
-                key={tab.name}
-                href={tab.href}
-                aria-current={tab.current ? "page" : undefined}
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => onTabChange(tab.id)}
+                aria-current={activeTab === tab.id ? "page" : undefined}
                 className={classNames(
-                  tab.current
+                  activeTab === tab.id
                     ? "border-indigo-500 text-indigo-600"
                     : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
                   "group inline-flex items-center border-b-2 px-1 py-4 text-sm font-medium",
@@ -50,12 +63,12 @@ export function AccountTabs() {
                 <tab.icon
                   aria-hidden="true"
                   className={classNames(
-                    tab.current ? "text-indigo-500" : "text-gray-400 group-hover:text-gray-500",
+                    activeTab === tab.id ? "text-indigo-500" : "text-gray-400 group-hover:text-gray-500",
                     "mr-2 -ml-0.5 size-5",
                   )}
                 />
                 <span>{tab.name}</span>
-              </a>
+              </button>
             ))}
           </nav>
         </div>

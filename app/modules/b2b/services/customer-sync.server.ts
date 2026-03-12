@@ -100,18 +100,26 @@ export const customerSyncService = {
           name: normalized.companyName ?? fallbackCompanyName(customer),
         });
 
+    const existingCompanyMemberCount = await companyMemberRepository.countByCompany(
+      db,
+      company.id,
+    );
+    const isFirstCompanyMember = existingCompanyMemberCount === 0;
+
     const member = await companyMemberRepository.create(db, {
       companyId: company.id,
       shopifyCustomerId: customer.id,
-      role: "USER",
-      status: "PENDING",
+      role: isFirstCompanyMember ? "ADMIN" : "USER",
+      status: isFirstCompanyMember ? "APPROVED" : "PENDING",
     });
 
-    await membershipRequestRepository.ensurePending(db, {
-      companyId: company.id,
-      shopifyCustomerId: customer.id,
-      reason: "Auto-created from Shopify customer webhook",
-    });
+    if (!isFirstCompanyMember) {
+      await membershipRequestRepository.ensurePending(db, {
+        companyId: company.id,
+        shopifyCustomerId: customer.id,
+        reason: "Auto-created from Shopify customer webhook",
+      });
+    }
 
     return {
       ok: true as const,

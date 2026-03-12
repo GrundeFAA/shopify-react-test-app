@@ -32,6 +32,12 @@ export const companyMemberRepository = {
     return db.companyMember.create({ data: input });
   },
 
+  async countByCompany(db: PrismaClient, companyId: string) {
+    return db.companyMember.count({
+      where: { companyId },
+    });
+  },
+
   async countApprovedByCompany(db: PrismaClient, companyId: string) {
     return db.companyMember.count({
       where: { companyId, status: "APPROVED" },

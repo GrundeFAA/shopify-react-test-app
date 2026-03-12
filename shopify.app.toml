@@ -2,12 +2,11 @@
 
 client_id = "c7f75bf8b5ddb242d69a8fd10216290e"
 name = "react-test"
-application_url = "https://example.com"
+application_url = "https://shopify-react-test-app-production.up.railway.app"
 embedded = true
 
 [build]
 automatically_update_urls_on_dev = true
-include_config_on_deploy = true
 
 [webhooks]
 api_version = "2026-04"
@@ -25,7 +24,12 @@ api_version = "2026-04"
 scopes = "write_metaobject_definitions,write_metaobjects,write_products"
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [ "https://shopify-react-test-app-production.up.railway.app/api/auth", "http://localhost:3000/callback" ]
+
+[app_proxy]
+url = "https://shopify-react-test-app-production.up.railway.app/app-proxy"
+subpath = "rt-auth"
+prefix = "apps"
 
 [product.metafields.app.demo_info]
 type = "single_line_text_field"

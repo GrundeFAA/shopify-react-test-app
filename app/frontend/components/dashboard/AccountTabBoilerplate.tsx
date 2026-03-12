@@ -15,6 +15,11 @@ type BoilerplateContent = {
   bullets: string[];
 };
 
+type PlaceholderPanel = {
+  heading: string;
+  items: string[];
+};
+
 const contentByTab: Record<AccountTabId, BoilerplateContent> = {
   "min-konto": {
     title: "Min konto",
@@ -63,6 +68,49 @@ const contentByTab: Record<AccountTabId, BoilerplateContent> = {
   },
 };
 
+const placeholderPanelsByTab: Record<Exclude<AccountTabId, "brukere">, PlaceholderPanel[]> = {
+  "min-konto": [
+    {
+      heading: "Profil",
+      items: ["Navn og e-post", "Telefonnummer", "Sprakpreferanse"],
+    },
+    {
+      heading: "Sikkerhet",
+      items: ["Passordendring", "Aktive innlogginger", "Samtykker"],
+    },
+  ],
+  selskap: [
+    {
+      heading: "Firmainfo",
+      items: ["Juridisk navn", "Org.nr", "Kundegruppe"],
+    },
+    {
+      heading: "Avtaler",
+      items: ["Betalingsbetingelser", "Rabattnivaa", "Kredittstatus"],
+    },
+  ],
+  adresser: [
+    {
+      heading: "Leveringsadresser",
+      items: ["Hovedlager", "Prosjektadresse", "Midlertidig leveringspunkt"],
+    },
+    {
+      heading: "Fakturaadresse",
+      items: ["EHF/epost", "Referanse", "Fakturamerking"],
+    },
+  ],
+  ordrer: [
+    {
+      heading: "Aktive ordre",
+      items: ["Plukket", "Sendt", "Del-levert"],
+    },
+    {
+      heading: "Historikk",
+      items: ["Tidligere bestillinger", "Returer", "Ordredokumenter"],
+    },
+  ],
+};
+
 export function AccountTabBoilerplate({
   activeTab,
   customerName,
@@ -94,11 +142,28 @@ export function AccountTabBoilerplate({
           <CompanyUsersTable members={companyMembers} />
         </div>
       ) : (
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-slate-700">
-          {content.bullets.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
+        <div className="mt-4 space-y-4">
+          <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
+            {content.bullets.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+          <div className="grid gap-3 md:grid-cols-2">
+            {placeholderPanelsByTab[activeTab as Exclude<AccountTabId, "brukere">].map((panel) => (
+              <article
+                key={panel.heading}
+                className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700"
+              >
+                <h3 className="mb-2 font-medium text-slate-900">{panel.heading}</h3>
+                <ul className="space-y-1">
+                  {panel.items.map((item) => (
+                    <li key={item}>- {item}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </div>
       )}
     </section>
   );

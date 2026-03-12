@@ -1,5 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
 import { companyMemberRepository } from "../repositories/company-member.server";
+import { customerDirectoryService } from "../../shopify/services/customer-directory.server";
 
 export type B2BDashboardData =
   | {
@@ -16,6 +17,8 @@ export type B2BDashboardData =
       members: Array<{
         id: string;
         shopifyCustomerId: string;
+        fullName: string | null;
+        email: string | null;
         role: string;
         status: string;
       }>;
@@ -64,6 +67,10 @@ export const dashboardService = {
       role: string;
       status: string;
     }>;
+    const customerDetailsById = await customerDirectoryService.getByIds(
+      shop,
+      members.map((member) => member.shopifyCustomerId),
+    );
 
     return {
       state: "APPROVED",
@@ -75,6 +82,8 @@ export const dashboardService = {
       members: members.map((member) => ({
         id: member.id,
         shopifyCustomerId: member.shopifyCustomerId,
+        fullName: customerDetailsById.get(member.shopifyCustomerId)?.fullName ?? null,
+        email: customerDetailsById.get(member.shopifyCustomerId)?.email ?? null,
         role: member.role,
         status: member.status,
       })),

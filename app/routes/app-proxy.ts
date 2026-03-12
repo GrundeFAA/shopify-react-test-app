@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { authenticate } from "../shopify.server";
+import { authenticate } from "../server/shopify.server";
 
 type ProxyAuthPayload = {
   ok: true;

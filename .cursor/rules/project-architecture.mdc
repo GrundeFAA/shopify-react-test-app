@@ -1,0 +1,21 @@
+---
+description: Core architecture and scalability conventions for the Shopify app
+alwaysApply: true
+---
+
+# Project Architecture
+
+- Treat this as a long-lived product, not a one-off feature.
+- Prefer feature-first structure with clear boundaries and shared modules only for true cross-feature concerns.
+- Keep a practical balance between DRY and separation of concerns:
+  - Reuse helpers only when duplication is meaningful and stable.
+  - Avoid premature abstraction.
+- Keep each module easy to reason about in isolation.
+- Prefer explicit and maintainable code over clever patterns.
+
+# Stack Baseline
+
+- This app uses Shopify + React Router on Node, not Next.js or tRPC.
+- Use `app/routes` loaders/actions as transport boundaries.
+- Use `authenticate.admin`, `authenticate.public.appProxy`, and `authenticate.webhook` for trust boundaries.
+- Keep Shopify-specific integrations thin and push domain logic to services.

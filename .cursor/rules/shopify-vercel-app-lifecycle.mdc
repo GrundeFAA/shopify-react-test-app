@@ -1,0 +1,46 @@
+---
+description: Shopify app concerns for Railway/Node hosting, webhooks, and idempotency
+alwaysApply: true
+---
+
+# Shopify and Deployment
+
+- Deployment target is Railway (Node server). App runs as an embedded Shopify app.
+- Keep Shopify-specific integration logic isolated from core domain services.
+- Keep `SHOPIFY_APP_URL` aligned with deployed URL and app proxy config.
+
+# Webhook Routes
+
+- Shopify webhooks are HTTP POST endpoints in `app/routes/webhooks.*.tsx`.
+- Route handlers stay thin: authenticate/verify, delegate to service, return 200.
+- Business logic lives in services, not in the route handler.
+
+```ts
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { payload } = await authenticate.webhook(request);
+  await customerWebhookService.handleCreate(payload);
+  return new Response();
+}
+```
+
+# Idempotency
+
+All webhook-triggered write operations must be safe to call multiple times with the same input.
+
+- Use `upsert` not `create` for state that should only exist once per entity.
+- Use a "find existing, skip if found" guard before any insert that should not duplicate.
+- Race-safe uniqueness: add a `@@unique` or `@unique` DB constraint on natural keys,
+  catch `P2002` (unique violation) and re-read instead of failing.
+
+```ts
+// BAD — duplicates on retry
+await db.membershipRequest.create({ data: { ... } });
+
+// GOOD — idempotent
+await membershipRequestRepository.ensurePendingRequest(db, { ... });
+```
+
+# Operational Safety
+
+- Log errors from all external Shopify API calls explicitly.
+- Never swallow errors silently in webhook handlers.

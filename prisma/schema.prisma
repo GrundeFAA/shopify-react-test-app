@@ -5,30 +5,88 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
-// enough when changing adapters.
-// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
 datasource db {
-  provider = "sqlite"
-  url      = "file:dev.sqlite"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CompanyStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum MemberRole {
+  ADMIN
+  USER
+}
+
+enum MembershipStatus {
+  PENDING
+  APPROVED
+  DENIED
 }
 
 model Session {
-  id            String    @id
-  shop          String
-  state         String
-  isOnline      Boolean   @default(false)
-  scope         String?
-  expires       DateTime?
-  accessToken   String
-  userId        BigInt?
-  firstName     String?
-  lastName      String?
-  email         String?
-  accountOwner  Boolean   @default(false)
-  locale        String?
-  collaborator  Boolean?  @default(false)
-  emailVerified Boolean?  @default(false)
+  id                  String    @id
+  shop                String
+  state               String
+  isOnline            Boolean   @default(false)
+  scope               String?
+  expires             DateTime?
+  accessToken         String
+  userId              BigInt?
+  firstName           String?
+  lastName            String?
+  email               String?
+  accountOwner        Boolean   @default(false)
+  locale              String?
+  collaborator        Boolean?  @default(false)
+  emailVerified       Boolean?  @default(false)
   refreshToken        String?
   refreshTokenExpires DateTime?
+
+  @@index([shop])
+}
+
+model Company {
+  id        String              @id @default(cuid())
+  name      String
+  orgNumber String?             @unique
+  status    CompanyStatus       @default(ACTIVE)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  members   CompanyMember[]
+  requests  MembershipRequest[]
+
+  @@index([name])
+  @@index([orgNumber])
+}
+
+model CompanyMember {
+  id                String           @id @default(cuid())
+  companyId         String
+  shopifyCustomerId String
+  role              MemberRole       @default(USER)
+  status            MembershipStatus @default(PENDING)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  company           Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, shopifyCustomerId])
+  @@index([shopifyCustomerId])
+  @@index([status])
+}
+
+model MembershipRequest {
+  id                String           @id @default(cuid())
+  companyId         String
+  shopifyCustomerId String
+  status            MembershipStatus @default(PENDING)
+  reason            String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  company           Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, status])
+  @@index([shopifyCustomerId])
 }

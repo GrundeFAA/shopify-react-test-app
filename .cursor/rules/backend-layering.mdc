@@ -1,0 +1,43 @@
+---
+description: Service and repository layering with React Router route boundaries
+alwaysApply: true
+---
+
+# Backend Layering
+
+The valid data flow is: `route loader/action -> service -> repository -> database`
+
+- `repositories`: data access only. No business logic.
+- `services`: business workflows and orchestration. No direct `ctx.db` or `db.*` calls.
+- `route handlers`: input validation and transport only. No DB calls, no business logic.
+
+**Never** call `db.*` directly inside a route loader/action.
+**Never** call `db.*` directly inside a service — call the appropriate repository method.
+
+```ts
+// BAD — DB access inside a route handler
+export const loader = async () => {
+  return db.companyMember.findMany({ where: { status: "PENDING" } });
+};
+
+// GOOD — route delegates to service/repository
+export const loader = async () => membershipService.listPending();
+```
+
+# Repository Conventions
+
+- Name methods by domain intent, not by SQL shape.
+  - Good: `listPendingWithCompany`, `findOrCreate`, `ensurePendingRequest`
+  - Avoid: `selectWherePending`, `insertIfNotExists`
+- Keep each method single-purpose and predictable.
+
+# Data and Validation
+
+- Use PostgreSQL as the primary data store.
+- Validate all external inputs at route boundary with Zod schemas.
+- Co-locate schemas with the feature module.
+
+# Public Surface
+
+- Admin/internal operations must require authenticated app sessions.
+- Storefront endpoints must verify Shopify signatures (app proxy/webhooks) before processing.

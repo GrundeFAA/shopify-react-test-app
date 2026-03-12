@@ -31,6 +31,7 @@ export const loader = async ({
         ? dashboard.pendingCompanyName
         : null;
   const orgNumber = dashboard?.state === "APPROVED" ? dashboard.company.orgNumber : null;
+  const companyMembers = dashboard?.state === "APPROVED" ? dashboard.members : [];
 
   return Response.json(
     {
@@ -41,6 +42,7 @@ export const loader = async ({
     companyName,
     orgNumber,
     customerName,
+    companyMembers,
     },
     {
       headers: {
@@ -51,8 +53,16 @@ export const loader = async ({
 };
 
 export default function AppProxyDashboard() {
-  const { appUrl, shop, customerId, membershipState, companyName, orgNumber, customerName } =
-    useLoaderData<typeof loader>();
+  const {
+    appUrl,
+    shop,
+    customerId,
+    membershipState,
+    companyName,
+    orgNumber,
+    customerName,
+    companyMembers,
+  } = useLoaderData<typeof loader>();
   return (
     <AppProxyProvider appUrl={appUrl}>
       <AppProxyDashboardPage
@@ -62,6 +72,7 @@ export default function AppProxyDashboard() {
         companyName={companyName}
         orgNumber={orgNumber}
         customerName={customerName}
+        companyMembers={companyMembers}
       />
     </AppProxyProvider>
   );

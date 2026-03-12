@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BuildingOfficeIcon } from "@heroicons/react/24/outline";
 import { AccountTabBoilerplate } from "../components/dashboard/AccountTabBoilerplate";
 import { AccountTabs, type AccountTabId } from "../components/dashboard/AccountTabs";
+import type { CompanyScopedMember } from "../components/dashboard/CompanyUsersTable";
 import { QuickActions } from "../components/dashboard/QuickActions";
 import { StatsGrid } from "../components/dashboard/StatsGrid";
 
@@ -12,6 +13,7 @@ type AppProxyDashboardPageProps = {
   companyName: string | null;
   orgNumber: string | null;
   customerName: string | null;
+  companyMembers: CompanyScopedMember[];
 };
 
 export function AppProxyDashboardPage({
@@ -21,6 +23,7 @@ export function AppProxyDashboardPage({
   companyName,
   orgNumber,
   customerName,
+  companyMembers,
 }: AppProxyDashboardPageProps) {
   const [activeTab, setActiveTab] = useState<AccountTabId>("brukere");
 
@@ -54,6 +57,7 @@ export function AppProxyDashboardPage({
           customerName={customerName}
           companyName={companyName}
           orgNumber={orgNumber}
+          companyMembers={companyMembers}
         />
 
         {activeTab === "ordrer" ? (

@@ -1,10 +1,12 @@
 import type { AccountTabId } from "./AccountTabs";
+import { CompanyUsersTable, type CompanyScopedMember } from "./CompanyUsersTable";
 
 type AccountTabBoilerplateProps = {
   activeTab: AccountTabId;
   customerName: string | null;
   companyName: string | null;
   orgNumber: string | null;
+  companyMembers: CompanyScopedMember[];
 };
 
 type BoilerplateContent = {
@@ -66,6 +68,7 @@ export function AccountTabBoilerplate({
   customerName,
   companyName,
   orgNumber,
+  companyMembers,
 }: AccountTabBoilerplateProps) {
   const content = contentByTab[activeTab];
 
@@ -86,11 +89,17 @@ export function AccountTabBoilerplate({
         </p>
       </div>
 
-      <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-slate-700">
-        {content.bullets.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-      </ul>
+      {activeTab === "brukere" ? (
+        <div className="mt-4">
+          <CompanyUsersTable members={companyMembers} />
+        </div>
+      ) : (
+        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-slate-700">
+          {content.bullets.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

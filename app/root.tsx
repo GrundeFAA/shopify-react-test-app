@@ -1,5 +1,10 @@
+import type { LinksFunction } from "react-router";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
-import "./frontend/styles/tailwind.css";
+import tailwindStylesUrl from "./frontend/styles/tailwind.css?url";
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: tailwindStylesUrl },
+];
 
 export default function App() {
   return (

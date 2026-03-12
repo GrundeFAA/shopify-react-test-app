@@ -16,8 +16,14 @@ if (
   delete process.env.HOST;
 }
 
-const host = new URL(process.env.SHOPIFY_APP_URL || "http://localhost")
-  .hostname;
+const appUrl = process.env.SHOPIFY_APP_URL || "";
+const host = new URL(appUrl || "http://localhost").hostname;
+
+// When the app is served through Shopify's app proxy (e.g. in an iframe),
+// the browser resolves relative asset URLs against the myshopify.com domain,
+// not the app domain. Setting base to the absolute app URL makes all asset
+// references absolute so the browser fetches them directly from the app.
+const base = appUrl.startsWith("https://") ? `${appUrl}/` : "/";
 
 let hmrConfig;
 if (host === "localhost") {
@@ -37,6 +43,7 @@ if (host === "localhost") {
 }
 
 export default defineConfig({
+  base,
   server: {
     allowedHosts: [host],
     cors: {

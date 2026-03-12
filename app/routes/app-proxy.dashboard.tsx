@@ -1,10 +1,12 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
+import { AppProxyProvider } from "@shopify/shopify-app-react-router/react";
 import { AppProxyDashboardPage } from "../frontend/pages/AppProxyDashboardPage";
 import { authenticate } from "../server/shopify.server";
 import { createTrpcCaller } from "../server/trpc/caller.server";
 
 type DashboardLoaderData = {
+  appUrl: string;
   shop: string | null;
   customerId: string | null;
   membershipState: "PENDING_OR_MISSING" | "APPROVED" | null;
@@ -41,6 +43,7 @@ export const loader = async ({
   const orgNumber = dashboard?.state === "APPROVED" ? dashboard.company.orgNumber : null;
 
   return {
+    appUrl: process.env.SHOPIFY_APP_URL ?? "",
     shop,
     customerId,
     membershipState,
@@ -51,16 +54,18 @@ export const loader = async ({
 };
 
 export default function AppProxyDashboard() {
-  const { shop, customerId, membershipState, companyName, orgNumber, customerName } =
+  const { appUrl, shop, customerId, membershipState, companyName, orgNumber, customerName } =
     useLoaderData<typeof loader>();
   return (
-    <AppProxyDashboardPage
-      shop={shop}
-      customerId={customerId}
-      membershipState={membershipState}
-      companyName={companyName}
-      orgNumber={orgNumber}
-      customerName={customerName}
-    />
+    <AppProxyProvider appUrl={appUrl}>
+      <AppProxyDashboardPage
+        shop={shop}
+        customerId={customerId}
+        membershipState={membershipState}
+        companyName={companyName}
+        orgNumber={orgNumber}
+        customerName={customerName}
+      />
+    </AppProxyProvider>
   );
 }

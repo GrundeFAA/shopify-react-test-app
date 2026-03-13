@@ -10,7 +10,7 @@ type DebugWindow = Window & {
 };
 const debugWindow = window as DebugWindow;
 debugWindow.__rtB2bBooted = true;
-
+// comment to trigger rebuild
 function tryMount() {
   if (mounted) return true;
   const mount = document.getElementById("rt-b2b-root");
@@ -24,7 +24,8 @@ function tryMount() {
     debugWindow.__rtB2bMounted = true;
     return true;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown mount error";
+    const message =
+      error instanceof Error ? error.message : "Unknown mount error";
     debugWindow.__rtB2bError = message;
     mount.innerHTML = `<div style="padding:12px;border:1px solid #fecaca;background:#fef2f2;color:#991b1b;font-size:14px">B2B mount feilet: ${message}</div>`;
     console.error("[rt-b2b] mount failed", error);

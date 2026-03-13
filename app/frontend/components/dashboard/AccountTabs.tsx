@@ -20,28 +20,26 @@ const tabs = [
 
 type AccountTabsProps = {
   activeTab: AccountTabId;
-  storefrontTabsBaseUrl: string;
+  onTabChange: (tab: AccountTabId) => void;
 };
 
-export function AccountTabs({ activeTab, storefrontTabsBaseUrl }: AccountTabsProps) {
+export function AccountTabs({ activeTab, onTabChange }: AccountTabsProps) {
   return (
     <div>
       <div className="grid grid-cols-1 sm:hidden">
-        <form action={storefrontTabsBaseUrl} method="get" className="contents">
-          <select
-            name="tab"
-            value={activeTab}
-            onChange={(event) => event.currentTarget.form?.submit()}
-            aria-label="Select a tab"
-            className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-2 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
-          >
-            {tabs.map((tab) => (
-              <option key={tab.id} value={tab.id}>
-                {tab.name}
-              </option>
-            ))}
-          </select>
-        </form>
+        <select
+          name="tab"
+          value={activeTab}
+          onChange={(event) => onTabChange(event.currentTarget.value as AccountTabId)}
+          aria-label="Select a tab"
+          className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-2 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
+        >
+          {tabs.map((tab) => (
+            <option key={tab.id} value={tab.id}>
+              {tab.name}
+            </option>
+          ))}
+        </select>
         <ChevronDownIcon
           aria-hidden="true"
           className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end fill-gray-500"
@@ -51,9 +49,10 @@ export function AccountTabs({ activeTab, storefrontTabsBaseUrl }: AccountTabsPro
         <div className="border-b border-gray-200">
           <nav aria-label="Tabs" className="-mb-px flex space-x-8 px-4">
             {tabs.map((tab) => (
-              <a
+              <button
+                type="button"
                 key={tab.id}
-                href={`${storefrontTabsBaseUrl}?tab=${tab.id}`}
+                onClick={() => onTabChange(tab.id)}
                 aria-current={activeTab === tab.id ? "page" : undefined}
                 className={classNames(
                   activeTab === tab.id
@@ -70,7 +69,7 @@ export function AccountTabs({ activeTab, storefrontTabsBaseUrl }: AccountTabsPro
                   )}
                 />
                 <span>{tab.name}</span>
-              </a>
+              </button>
             ))}
           </nav>
         </div>

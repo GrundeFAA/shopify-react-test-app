@@ -35,28 +35,57 @@ if (host === "localhost") {
   };
 }
 
-export default defineConfig({
-  server: {
-    allowedHosts: [host],
-    cors: {
-      preflightContinue: true,
+export default defineConfig(({ mode }) => {
+  if (mode === "storefront") {
+    return {
+      plugins: [tailwindcss(), tsconfigPaths()],
+      build: {
+        // Keep this bundle in the same static output folder as the client build.
+        outDir: "build/client",
+        emptyOutDir: false,
+        assetsInlineLimit: 0,
+        cssCodeSplit: false,
+        lib: {
+          entry: "app/storefront/entry.tsx",
+          name: "RTB2BDashboard",
+          formats: ["iife"],
+          fileName: () => "storefront.js",
+        },
+        rollupOptions: {
+          output: {
+            assetFileNames: (assetInfo) =>
+              assetInfo.name?.endsWith(".css")
+                ? "storefront.css"
+                : "assets/[name]-[hash][extname]",
+          },
+        },
+      },
+    } satisfies UserConfig;
+  }
+
+  return {
+    server: {
+      allowedHosts: [host],
+      cors: {
+        preflightContinue: true,
+      },
+      port: Number(process.env.PORT || 3000),
+      hmr: hmrConfig,
+      fs: {
+        // See https://vitejs.dev/config/server-options.html#server-fs-allow for more information
+        allow: ["app", "node_modules"],
+      },
     },
-    port: Number(process.env.PORT || 3000),
-    hmr: hmrConfig,
-    fs: {
-      // See https://vitejs.dev/config/server-options.html#server-fs-allow for more information
-      allow: ["app", "node_modules"],
+    plugins: [
+      tailwindcss(),
+      reactRouter(),
+      tsconfigPaths(),
+    ],
+    build: {
+      assetsInlineLimit: 0,
     },
-  },
-  plugins: [
-    tailwindcss(),
-    reactRouter(),
-    tsconfigPaths(),
-  ],
-  build: {
-    assetsInlineLimit: 0,
-  },
-  optimizeDeps: {
-    include: ["@shopify/app-bridge-react"],
-  },
-}) satisfies UserConfig;
+    optimizeDeps: {
+      include: ["@shopify/app-bridge-react"],
+    },
+  } satisfies UserConfig;
+});

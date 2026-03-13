@@ -95,6 +95,10 @@ app.use(
     maxAge: "1y",
   }),
 );
+app.get(["/storefront.js", "/storefront.css"], (_req, res, next) => {
+  res.setHeader("Cache-Control", "no-cache");
+  next();
+});
 app.use(build.publicPath, express.static(build.assetsBuildDirectory));
 app.use(express.static("public", { maxAge: "1h" }));
 app.use(morgan("tiny"));

@@ -1,4 +1,3 @@
-import { Form } from "react-router";
 import { DataTable } from "../table/DataTable";
 
 export type CompanyAddressRow = {
@@ -20,18 +19,25 @@ export type CompanyAddressRow = {
 
 type CompanyAddressesTableProps = {
   addresses: CompanyAddressRow[];
-  formMode: string | null;
+  formMode: "create" | "edit" | null;
   editingAddressId: string | null;
   actionError: string | null;
-  baseUrl: string;
+  isSubmitting: boolean;
+  onStartCreate: () => void;
+  onStartEdit: (addressId: string) => void;
+  onCancelForm: () => void;
+  onCreateAddress: (formData: FormData) => Promise<void>;
+  onUpdateAddress: (addressId: string, formData: FormData) => Promise<void>;
+  onDeleteAddress: (addressId: string) => Promise<void>;
 };
 
 type AddressFormProps = {
-  intent: "create-address" | "update-address";
+  mode: "create" | "edit";
   submitLabel: string;
   address?: CompanyAddressRow | null;
-  cancelHref: string;
-  formAction: string;
+  isSubmitting: boolean;
+  onCancel: () => void;
+  onSubmit: (formData: FormData) => Promise<void>;
 };
 
 function toDisplayType(type: CompanyAddressRow["type"]): string {
@@ -46,12 +52,25 @@ function toDisplayName(address: CompanyAddressRow): string {
   return "Uten navn";
 }
 
-function AddressForm({ intent, submitLabel, address, cancelHref, formAction }: AddressFormProps) {
-  const isEditing = intent === "update-address" && !!address;
+function AddressForm({
+  mode,
+  submitLabel,
+  address,
+  isSubmitting,
+  onCancel,
+  onSubmit,
+}: AddressFormProps) {
+  const isEditing = mode === "edit" && !!address;
 
   return (
-    <Form method="post" action={formAction} className="space-y-3 rounded-md border border-slate-200 bg-slate-50 p-4">
-      <input type="hidden" name="intent" value={intent} />
+    <form
+      className="space-y-3 rounded-md border border-slate-200 bg-slate-50 p-4"
+      onSubmit={async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        await onSubmit(new FormData(form));
+      }}
+    >
       {isEditing ? <input type="hidden" name="id" value={address.id} /> : null}
 
       <div className="grid gap-3 md:grid-cols-2">
@@ -185,18 +204,21 @@ function AddressForm({ intent, submitLabel, address, cancelHref, formAction }: A
       <div className="flex items-center gap-3">
         <button
           type="submit"
+          disabled={isSubmitting}
           className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
         >
           {submitLabel}
         </button>
-        <a
-          href={cancelHref}
+        <button
+          type="button"
+          disabled={isSubmitting}
+          onClick={onCancel}
           className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
         >
           Avbryt
-        </a>
+        </button>
       </div>
-    </Form>
+    </form>
   );
 }
 
@@ -205,15 +227,19 @@ export function CompanyAddressesTable({
   formMode,
   editingAddressId,
   actionError,
-  baseUrl,
+  isSubmitting,
+  onStartCreate,
+  onStartEdit,
+  onCancelForm,
+  onCreateAddress,
+  onUpdateAddress,
+  onDeleteAddress,
 }: CompanyAddressesTableProps) {
   const showCreateForm = formMode === "create";
   const editingAddress =
     formMode === "edit" && editingAddressId
       ? (addresses.find((address) => address.id === editingAddressId) ?? null)
       : null;
-
-  const cancelHref = `${baseUrl}?tab=adresser`;
 
   return (
     <div className="space-y-3">
@@ -225,20 +251,22 @@ export function CompanyAddressesTable({
 
       {showCreateForm ? (
         <AddressForm
-          intent="create-address"
+          mode="create"
           submitLabel="Opprett adresse"
-          cancelHref={cancelHref}
-          formAction={baseUrl}
+          isSubmitting={isSubmitting}
+          onCancel={onCancelForm}
+          onSubmit={onCreateAddress}
         />
       ) : null}
 
       {editingAddress ? (
         <AddressForm
-          intent="update-address"
+          mode="edit"
           address={editingAddress}
           submitLabel="Lagre endringer"
-          cancelHref={cancelHref}
-          formAction={baseUrl}
+          isSubmitting={isSubmitting}
+          onCancel={onCancelForm}
+          onSubmit={async (formData) => onUpdateAddress(editingAddress.id, formData)}
         />
       ) : null}
 
@@ -248,7 +276,7 @@ export function CompanyAddressesTable({
         rows={addresses}
         getRowId={(row) => row.id}
         actionLabel="Legg til adresse"
-        actionHref={`${baseUrl}?tab=adresser&form=create`}
+        onActionClick={onStartCreate}
         emptyStateText="Ingen adresser funnet."
         columns={[
           {
@@ -280,28 +308,30 @@ export function CompanyAddressesTable({
             key: "rediger",
             header: "Rediger",
             render: (row) => (
-              <a
-                href={`${baseUrl}?tab=adresser&form=edit&addressId=${row.id}`}
+              <button
+                type="button"
+                disabled={isSubmitting}
+                onClick={() => onStartEdit(row.id)}
                 className="text-sm font-medium text-indigo-600 hover:text-indigo-900"
               >
                 Rediger
-              </a>
+              </button>
             ),
           },
           {
             key: "delete",
             header: "Slett",
             render: (row) => (
-              <Form method="post" action={baseUrl}>
-                <input type="hidden" name="intent" value="delete-address" />
-                <input type="hidden" name="id" value={row.id} />
-                <button
-                  type="submit"
-                  className="text-sm font-medium text-rose-600 hover:text-rose-800"
-                >
-                  Slett
-                </button>
-              </Form>
+              <button
+                type="button"
+                disabled={isSubmitting}
+                onClick={() => {
+                  void onDeleteAddress(row.id);
+                }}
+                className="text-sm font-medium text-rose-600 hover:text-rose-800"
+              >
+                Slett
+              </button>
             ),
           },
         ]}

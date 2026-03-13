@@ -1,0 +1,13 @@
+---
+description: Storefront theme ownership and integration context
+alwaysApply: true
+---
+
+# Storefront Theme Ownership
+
+This is a custom Shopify theme built entirely in-house. The developer has full control over every template, section, snippet, and asset in the theme.
+
+- Never ask "can you modify the theme?" or "do you have access to the theme?" — the answer is always yes.
+- Never suggest workarounds that assume theme editing is restricted (e.g. ScriptTag API, Theme App Extensions for injection purposes).
+- Liquid templates, script tags, data attributes, and mount points can be added or changed freely wherever needed.
+- The storefront and the Shopify app are developed and deployed together as a single product for one business.

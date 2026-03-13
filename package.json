@@ -2,7 +2,8 @@
   "name": "react-test",
   "private": true,
   "scripts": {
-    "build": "react-router build",
+    "build": "react-router build && vite build --mode storefront",
+    "build:storefront": "vite build --mode storefront",
     "dev": "shopify app dev",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",

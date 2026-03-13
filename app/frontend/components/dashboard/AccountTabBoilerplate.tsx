@@ -7,10 +7,16 @@ type AccountTabBoilerplateProps = {
   activeTab: AccountTabId;
   companyMembers: CompanyScopedMember[];
   addresses: CompanyAddressRow[];
-  formMode: string | null;
+  formMode: "create" | "edit" | null;
   editingAddressId: string | null;
   actionError: string | null;
-  storefrontTabsBaseUrl: string;
+  isAddressSubmitting: boolean;
+  onStartCreateAddress: () => void;
+  onStartEditAddress: (addressId: string) => void;
+  onCancelAddressForm: () => void;
+  onCreateAddress: (formData: FormData) => Promise<void>;
+  onUpdateAddress: (addressId: string, formData: FormData) => Promise<void>;
+  onDeleteAddress: (addressId: string) => Promise<void>;
 };
 
 type BoilerplateContent = {
@@ -74,7 +80,13 @@ export function AccountTabBoilerplate({
   formMode,
   editingAddressId,
   actionError,
-  storefrontTabsBaseUrl,
+  isAddressSubmitting,
+  onStartCreateAddress,
+  onStartEditAddress,
+  onCancelAddressForm,
+  onCreateAddress,
+  onUpdateAddress,
+  onDeleteAddress,
 }: AccountTabBoilerplateProps) {
   const content = contentByTab[activeTab];
 
@@ -94,7 +106,13 @@ export function AccountTabBoilerplate({
             formMode={formMode}
             editingAddressId={editingAddressId}
             actionError={actionError}
-            baseUrl={storefrontTabsBaseUrl}
+            isSubmitting={isAddressSubmitting}
+            onStartCreate={onStartCreateAddress}
+            onStartEdit={onStartEditAddress}
+            onCancelForm={onCancelAddressForm}
+            onCreateAddress={onCreateAddress}
+            onUpdateAddress={onUpdateAddress}
+            onDeleteAddress={onDeleteAddress}
           />
         </div>
       ) : activeTab === "ordrer" ? (

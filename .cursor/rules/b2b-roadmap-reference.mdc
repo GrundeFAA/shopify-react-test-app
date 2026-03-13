@@ -1,0 +1,34 @@
+---
+description: Always consult the B2B roadmap before implementing B2B features
+alwaysApply: true
+---
+
+# B2B Roadmap Reference
+
+Before implementing any B2B feature, read `docs/b2b-roadmap.md`.
+
+The roadmap defines:
+
+- confirmed product decisions (membership model, roles, address strategy, order aggregation)
+- phased implementation plan (Phase 1-4)
+- explicit MVP non-goals (do not implement prematurely)
+- data ownership and source of truth per entity
+- BC connector integration boundaries
+
+## Key Constraints to Enforce
+
+- One customer belongs to exactly one company.
+- Do not use Shopify Plus B2B/Company APIs — this store does not have Plus.
+- Customer note field is a temporary transport only — clear it after successful webhook processing.
+- `b2b` tag on the Shopify customer is the durable signal for theme and app logic.
+- App DB is source of truth for company addresses; Shopify customer addresses are a synced mirror.
+- Company order history is built by aggregating orders across all approved member customer IDs.
+- Only two roles: `ADMIN` and `USER`.
+
+## What Not to Build in MVP
+
+- BC custom extension dependencies.
+- Advanced role model beyond `ADMIN`/`USER`.
+- User self-removal from company.
+- Automated BC-driven membership orchestration.
+- Company user invite flow (deferred to post-Phase 1).

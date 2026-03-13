@@ -1,0 +1,30 @@
+---
+description: Ensure frontend user-facing text is Norwegian
+globs: app/frontend/**/*.tsx
+alwaysApply: false
+---
+
+# Frontend Language Policy
+
+- All user-facing UI text must be Norwegian (`nb-NO`) in this project.
+- Treat English UI copy as development placeholder text that must be replaced before completion.
+- This includes:
+  - headings, labels, buttons, table headers, empty states, helper text, errors, and notices
+  - user-facing strings rendered from React components in `app/frontend`
+- Keep internal identifiers in English (variable names, types, function names) unless there is a strong reason not to.
+
+# Quick Checks Before Finishing
+
+- Verify newly added/updated UI strings are Norwegian.
+- Remove temporary English placeholders like "Coming soon", "Unknown", "Loading", and similar.
+- If a string is intentionally untranslated, add a short comment explaining why.
+
+# Examples
+
+```tsx
+// Avoid
+<button>Add user</button>
+
+// Prefer
+<button>Legg til bruker</button>
+```

@@ -15,6 +15,11 @@ enum CompanyStatus {
   INACTIVE
 }
 
+enum AddressType {
+  BILLING
+  SHIPPING
+}
+
 enum MemberRole {
   ADMIN
   USER
@@ -57,9 +62,51 @@ model Company {
   updatedAt DateTime            @updatedAt
   members   CompanyMember[]
   requests  MembershipRequest[]
+  addresses CompanyAddress[]
 
   @@index([name])
   @@index([orgNumber])
+}
+
+// Source of truth for company addresses.
+// Synced to Shopify customer addresses for all approved members via CompanyAddressMember.
+model CompanyAddress {
+  id        String                 @id @default(cuid())
+  companyId String
+  type      AddressType
+  label     String?
+  isDefault Boolean                @default(false)
+  firstName String?
+  lastName  String?
+  company   String?
+  address1  String
+  address2  String?
+  city      String
+  province  String?
+  zip       String
+  country   String
+  phone     String?
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+  companyRel Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  memberMappings CompanyAddressMember[]
+
+  @@index([companyId, type])
+}
+
+// Tracks which Shopify MailingAddress ID corresponds to each company address per member.
+// Used to update the correct Shopify address on sync, and to avoid touching personal addresses.
+model CompanyAddressMember {
+  id                String         @id @default(cuid())
+  companyAddressId  String
+  shopifyCustomerId String
+  shopifyAddressId  String
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  companyAddress    CompanyAddress @relation(fields: [companyAddressId], references: [id], onDelete: Cascade)
+
+  @@unique([companyAddressId, shopifyCustomerId])
+  @@index([shopifyCustomerId])
 }
 
 model CompanyMember {

@@ -39,6 +39,9 @@ export default defineConfig(({ mode }) => {
   if (mode === "storefront") {
     return {
       plugins: [tailwindcss(), tsconfigPaths()],
+      define: {
+        "process.env.NODE_ENV": JSON.stringify("production"),
+      },
       build: {
         // Keep this bundle in the same static output folder as the client build.
         outDir: "build/client",

@@ -22,6 +22,7 @@ type CompanyAddressesTableProps = {
   addresses: CompanyAddressRow[];
   formMode: string | null;
   editingAddressId: string | null;
+  actionError: string | null;
   baseUrl: string;
 };
 
@@ -202,6 +203,7 @@ export function CompanyAddressesTable({
   addresses,
   formMode,
   editingAddressId,
+  actionError,
   baseUrl,
 }: CompanyAddressesTableProps) {
   const showCreateForm = formMode === "create";
@@ -214,6 +216,12 @@ export function CompanyAddressesTable({
 
   return (
     <div className="space-y-3">
+      {actionError ? (
+        <div className="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          <strong>Feil:</strong> {actionError}
+        </div>
+      ) : null}
+
       {showCreateForm ? (
         <AddressForm
           intent="create-address"

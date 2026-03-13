@@ -14,6 +14,7 @@ type AppProxyDashboardPageProps = {
   addresses: CompanyAddressRow[];
   formMode: string | null;
   editingAddressId: string | null;
+  actionError: string | null;
   activeTab: AccountTabId;
   storefrontTabsBaseUrl: string;
 };
@@ -26,6 +27,7 @@ export function AppProxyDashboardPage({
   addresses,
   formMode,
   editingAddressId,
+  actionError,
   activeTab,
   storefrontTabsBaseUrl,
 }: AppProxyDashboardPageProps) {
@@ -53,6 +55,7 @@ export function AppProxyDashboardPage({
             addresses={addresses}
             formMode={formMode}
             editingAddressId={editingAddressId}
+            actionError={actionError}
             storefrontTabsBaseUrl={storefrontTabsBaseUrl}
           />
         </section>

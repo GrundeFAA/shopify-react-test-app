@@ -9,6 +9,7 @@ type AccountTabBoilerplateProps = {
   addresses: CompanyAddressRow[];
   formMode: string | null;
   editingAddressId: string | null;
+  actionError: string | null;
   storefrontTabsBaseUrl: string;
 };
 
@@ -72,6 +73,7 @@ export function AccountTabBoilerplate({
   addresses,
   formMode,
   editingAddressId,
+  actionError,
   storefrontTabsBaseUrl,
 }: AccountTabBoilerplateProps) {
   const content = contentByTab[activeTab];
@@ -91,6 +93,7 @@ export function AccountTabBoilerplate({
             addresses={addresses}
             formMode={formMode}
             editingAddressId={editingAddressId}
+            actionError={actionError}
             baseUrl={storefrontTabsBaseUrl}
           />
         </div>

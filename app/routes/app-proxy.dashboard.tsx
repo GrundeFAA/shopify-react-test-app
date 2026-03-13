@@ -56,68 +56,82 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   await authenticate.public.appProxy(request);
 
   const url = new URL(request.url);
-  const customerId = url.searchParams.get("logged_in_customer_id");
   const shop = url.searchParams.get("shop");
+  const customerId = url.searchParams.get("logged_in_customer_id");
+  const pathPrefix = url.searchParams.get("path_prefix") ?? "/apps/rt-auth";
+  const normalizedActionShop = normalizeShopDomain(shop);
+  const storefrontBase = normalizedActionShop
+    ? `https://${normalizedActionShop}${pathPrefix}/dashboard`
+    : `${pathPrefix}/dashboard`;
 
-  if (!customerId || !shop) {
-    return Response.json({ ok: false, error: "Missing customer/shop context" }, { status: 400 });
-  }
-
-  const formData = await request.formData();
-  const intent = formData.get("intent");
-  const caller = createTrpcCaller({ request, shop, customerId });
-
-  const redirectToAddresses = () => {
-    // Must redirect to the Shopify storefront URL, not the app server URL.
-    // Redirecting to the app server URL bypasses the App Proxy, causing HMAC
-    // validation to fail with a 400 Bad Request on the next load.
-    const pathPrefix = url.searchParams.get("path_prefix") ?? "/apps/rt-auth";
-    const normalizedRedirectShop = normalizeShopDomain(shop);
-    const storefrontBase = normalizedRedirectShop
-      ? `https://${normalizedRedirectShop}${pathPrefix}/dashboard`
-      : `${pathPrefix}/dashboard`;
-    return redirect(`${storefrontBase}?tab=adresser`);
+  // Always redirect to the Shopify storefront URL — never the app server URL.
+  // Direct app server URLs bypass the App Proxy and fail HMAC validation.
+  const redirectToAddresses = (errorMessage?: string) => {
+    const target = new URL(`${storefrontBase}?tab=adresser`);
+    if (errorMessage) target.searchParams.set("actionError", errorMessage);
+    return redirect(target.toString());
   };
 
-  if (intent === "create-address") {
-    const typeValue = formData.get("type");
-    if (typeValue !== "BILLING" && typeValue !== "SHIPPING") {
-      return Response.json({ ok: false, error: "Invalid address type" }, { status: 400 });
+  try {
+    if (!customerId || !shop) {
+      console.error("[app-proxy action] Missing customer/shop context", {
+        customerId,
+        shop,
+        url: request.url,
+      });
+      return redirectToAddresses("Ikke innlogget eller manglende butikk-kontekst.");
     }
 
-    await caller.b2b.createCompanyAddress({
-      type: typeValue,
-      ...toOptionalAddressInput(formData),
-    });
-    return redirectToAddresses();
-  }
+    const formData = await request.formData();
+    const intent = formData.get("intent");
+    const caller = createTrpcCaller({ request, shop, customerId });
 
-  if (intent === "update-address") {
-    const id = toRequiredString(formData.get("id"));
-    const typeValue = formData.get("type");
-    if (!id || (typeValue !== "BILLING" && typeValue !== "SHIPPING")) {
-      return Response.json({ ok: false, error: "Missing address id/type" }, { status: 400 });
+    if (intent === "create-address") {
+      const typeValue = formData.get("type");
+      if (typeValue !== "BILLING" && typeValue !== "SHIPPING") {
+        return redirectToAddresses("Ugyldig adressetype.");
+      }
+
+      await caller.b2b.createCompanyAddress({
+        type: typeValue,
+        ...toOptionalAddressInput(formData),
+      });
+      return redirectToAddresses();
     }
 
-    await caller.b2b.updateCompanyAddress({
-      id,
-      type: typeValue,
-      ...toOptionalAddressInput(formData),
-    });
-    return redirectToAddresses();
-  }
+    if (intent === "update-address") {
+      const id = toRequiredString(formData.get("id"));
+      const typeValue = formData.get("type");
+      if (!id || (typeValue !== "BILLING" && typeValue !== "SHIPPING")) {
+        return redirectToAddresses("Manglende adresse-ID eller type.");
+      }
 
-  if (intent === "delete-address") {
-    const id = toRequiredString(formData.get("id"));
-    if (!id) {
-      return Response.json({ ok: false, error: "Missing address id" }, { status: 400 });
+      await caller.b2b.updateCompanyAddress({
+        id,
+        type: typeValue,
+        ...toOptionalAddressInput(formData),
+      });
+      return redirectToAddresses();
     }
 
-    await caller.b2b.deleteCompanyAddress({ id });
-    return redirectToAddresses();
-  }
+    if (intent === "delete-address") {
+      const id = toRequiredString(formData.get("id"));
+      if (!id) {
+        return redirectToAddresses("Manglende adresse-ID.");
+      }
 
-  return Response.json({ ok: false, error: "Unknown intent" }, { status: 400 });
+      await caller.b2b.deleteCompanyAddress({ id });
+      return redirectToAddresses();
+    }
+
+    console.error("[app-proxy action] Unknown intent", { intent });
+    return redirectToAddresses("Ukjent handling.");
+  } catch (error) {
+    console.error("[app-proxy action] Unhandled error", { error, url: request.url });
+    const message =
+      error instanceof Error ? error.message : "En ukjent feil oppstod. Prøv igjen.";
+    return redirectToAddresses(message);
+  }
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -131,6 +145,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const requestedTab = url.searchParams.get("tab");
   const formMode = url.searchParams.get("form");
   const editingAddressId = url.searchParams.get("addressId");
+  const actionError = url.searchParams.get("actionError");
   const activeTab: AccountTabId = validTabs.includes(
     requestedTab as AccountTabId,
   )
@@ -201,6 +216,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       addresses,
       formMode,
       editingAddressId,
+      actionError,
       activeTab,
       storefrontTabsBaseUrl,
     },
@@ -222,6 +238,7 @@ export default function AppProxyDashboard() {
     addresses,
     formMode,
     editingAddressId,
+    actionError,
     activeTab,
     storefrontTabsBaseUrl,
   } = useLoaderData<typeof loader>();
@@ -235,6 +252,7 @@ export default function AppProxyDashboard() {
         addresses={addresses}
         formMode={formMode}
         editingAddressId={editingAddressId}
+        actionError={actionError}
         activeTab={activeTab}
         storefrontTabsBaseUrl={storefrontTabsBaseUrl}
       />

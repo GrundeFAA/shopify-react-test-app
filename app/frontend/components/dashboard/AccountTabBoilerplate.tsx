@@ -1,11 +1,12 @@
 import type { AccountTabId } from "./AccountTabs";
-import { CompanyAddressesTable } from "./CompanyAddressesTable";
+import { CompanyAddressesTable, type CompanyAddressRow } from "./CompanyAddressesTable";
 import { CompanyUsersTable, type CompanyScopedMember } from "./CompanyUsersTable";
 import { CompanyOrdersTable } from "./CompanyOrdersTable";
 
 type AccountTabBoilerplateProps = {
   activeTab: AccountTabId;
   companyMembers: CompanyScopedMember[];
+  addresses: CompanyAddressRow[];
 };
 
 type BoilerplateContent = {
@@ -65,6 +66,7 @@ const contentByTab: Record<AccountTabId, BoilerplateContent> = {
 export function AccountTabBoilerplate({
   activeTab,
   companyMembers,
+  addresses,
 }: AccountTabBoilerplateProps) {
   const content = contentByTab[activeTab];
 
@@ -79,7 +81,7 @@ export function AccountTabBoilerplate({
         </div>
       ) : activeTab === "adresser" ? (
         <div className="mt-4">
-          <CompanyAddressesTable />
+          <CompanyAddressesTable addresses={addresses} />
         </div>
       ) : activeTab === "ordrer" ? (
         <div className="mt-4">

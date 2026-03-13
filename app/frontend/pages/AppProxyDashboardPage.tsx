@@ -1,6 +1,7 @@
 import { BuildingOfficeIcon } from "@heroicons/react/24/outline";
 import { AccountTabBoilerplate } from "../components/dashboard/AccountTabBoilerplate";
 import { AccountTabs, type AccountTabId } from "../components/dashboard/AccountTabs";
+import type { CompanyAddressRow } from "../components/dashboard/CompanyAddressesTable";
 import type { CompanyScopedMember } from "../components/dashboard/CompanyUsersTable";
 import { QuickActions } from "../components/dashboard/QuickActions";
 import { StatsGrid } from "../components/dashboard/StatsGrid";
@@ -10,6 +11,7 @@ type AppProxyDashboardPageProps = {
   orgNumber: string | null;
   customerName: string | null;
   companyMembers: CompanyScopedMember[];
+  addresses: CompanyAddressRow[];
   activeTab: AccountTabId;
   storefrontTabsBaseUrl: string;
 };
@@ -19,6 +21,7 @@ export function AppProxyDashboardPage({
   orgNumber,
   customerName,
   companyMembers,
+  addresses,
   activeTab,
   storefrontTabsBaseUrl,
 }: AppProxyDashboardPageProps) {
@@ -40,7 +43,11 @@ export function AppProxyDashboardPage({
       <div className="space-y-4">
         <section className="rounded-lg border border-slate-200 bg-white pt-1 shadow-sm">
           <AccountTabs activeTab={activeTab} storefrontTabsBaseUrl={storefrontTabsBaseUrl} />
-          <AccountTabBoilerplate activeTab={activeTab} companyMembers={companyMembers} />
+          <AccountTabBoilerplate
+            activeTab={activeTab}
+            companyMembers={companyMembers}
+            addresses={addresses}
+          />
         </section>
 
         {activeTab === "ordrer" ? (

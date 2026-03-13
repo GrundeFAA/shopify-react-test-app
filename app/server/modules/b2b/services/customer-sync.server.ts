@@ -2,6 +2,7 @@ import type { PrismaClient } from "@prisma/client";
 import { companyMemberRepository } from "../repositories/company-member.server";
 import { companyRepository } from "../repositories/company.server";
 import { membershipRequestRepository } from "../repositories/membership-request.server";
+import { addressSyncService } from "./address-sync.server";
 
 type ShopifyCustomerWebhookPayload = {
   id: string;
@@ -96,6 +97,11 @@ export const customerSyncService = {
             existingMember.id,
             { role: "ADMIN", status: "APPROVED" },
           );
+          await addressSyncService.syncAllCompanyAddressesToMember(db, {
+            shop,
+            companyId: existingMember.companyId,
+            shopifyCustomerId: customer.id,
+          });
 
           return {
             ok: true as const,
@@ -140,6 +146,13 @@ export const customerSyncService = {
       role: isFirstApprovedMember ? "ADMIN" : "USER",
       status: isFirstApprovedMember ? "APPROVED" : "PENDING",
     });
+    if (isFirstApprovedMember) {
+      await addressSyncService.syncAllCompanyAddressesToMember(db, {
+        shop,
+        companyId: company.id,
+        shopifyCustomerId: customer.id,
+      });
+    }
 
     if (!isFirstApprovedMember) {
       await membershipRequestRepository.ensurePending(db, {

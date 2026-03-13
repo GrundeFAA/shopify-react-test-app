@@ -1,8 +1,9 @@
-import type { LoaderFunctionArgs } from "react-router";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
 import { AppProxyProvider } from "@shopify/shopify-app-react-router/react";
 import { AppProxyDashboardPage } from "../frontend/pages/AppProxyDashboardPage";
 import type { AccountTabId } from "../frontend/components/dashboard/AccountTabs";
+import type { CompanyAddressRow } from "../frontend/components/dashboard/CompanyAddressesTable";
 import {
   getMockAppProxyDashboardData,
   shouldUseMockAppProxyDashboardData,
@@ -22,6 +23,90 @@ function normalizeShopDomain(shop: string | null): string | null {
   if (!shop) return null;
   return shop.replace(/^https?:\/\//, "").trim();
 }
+
+function toNullableString(value: FormDataEntryValue | null): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : null;
+}
+
+function toRequiredString(value: FormDataEntryValue | null): string {
+  if (typeof value !== "string") return "";
+  return value.trim();
+}
+
+function toOptionalAddressInput(formData: FormData) {
+  return {
+    label: toNullableString(formData.get("label")),
+    isDefault: formData.get("isDefault") === "on",
+    firstName: toNullableString(formData.get("firstName")),
+    lastName: toNullableString(formData.get("lastName")),
+    company: toNullableString(formData.get("company")),
+    address1: toRequiredString(formData.get("address1")),
+    address2: toNullableString(formData.get("address2")),
+    city: toRequiredString(formData.get("city")),
+    province: toNullableString(formData.get("province")),
+    zip: toRequiredString(formData.get("zip")),
+    country: toRequiredString(formData.get("country")),
+    phone: toNullableString(formData.get("phone")),
+  };
+}
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  await authenticate.public.appProxy(request);
+
+  const url = new URL(request.url);
+  const customerId = url.searchParams.get("logged_in_customer_id");
+  const shop = url.searchParams.get("shop");
+
+  if (!customerId || !shop) {
+    return Response.json({ ok: false, error: "Missing customer/shop context" }, { status: 400 });
+  }
+
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+  const caller = createTrpcCaller({ request, shop, customerId });
+
+  if (intent === "create-address") {
+    const typeValue = formData.get("type");
+    if (typeValue !== "BILLING" && typeValue !== "SHIPPING") {
+      return Response.json({ ok: false, error: "Invalid address type" }, { status: 400 });
+    }
+
+    await caller.b2b.createCompanyAddress({
+      type: typeValue,
+      ...toOptionalAddressInput(formData),
+    });
+    return Response.json({ ok: true });
+  }
+
+  if (intent === "update-address") {
+    const id = toRequiredString(formData.get("id"));
+    const typeValue = formData.get("type");
+    if (!id || (typeValue !== "BILLING" && typeValue !== "SHIPPING")) {
+      return Response.json({ ok: false, error: "Missing address id/type" }, { status: 400 });
+    }
+
+    await caller.b2b.updateCompanyAddress({
+      id,
+      type: typeValue,
+      ...toOptionalAddressInput(formData),
+    });
+    return Response.json({ ok: true });
+  }
+
+  if (intent === "delete-address") {
+    const id = toRequiredString(formData.get("id"));
+    if (!id) {
+      return Response.json({ ok: false, error: "Missing address id" }, { status: 400 });
+    }
+
+    await caller.b2b.deleteCompanyAddress({ id });
+    return Response.json({ ok: true });
+  }
+
+  return Response.json({ ok: false, error: "Unknown intent" }, { status: 400 });
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticate.public.appProxy(request);
@@ -62,6 +147,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     role: string;
     status: string;
   }> = [];
+  let addresses: CompanyAddressRow[] = [];
   let resolvedCustomerName: string | null = customerName;
 
   if (shouldUseMockAppProxyDashboardData()) {
@@ -70,6 +156,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     companyName = mock.companyName;
     orgNumber = mock.orgNumber;
     companyMembers = mock.companyMembers;
+    addresses = mock.addresses;
     resolvedCustomerName = customerName ?? mock.customerName;
   } else {
     const caller = createTrpcCaller({ request, shop, customerId });
@@ -87,6 +174,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     orgNumber =
       dashboard?.state === "APPROVED" ? dashboard.company.orgNumber : null;
     companyMembers = dashboard?.state === "APPROVED" ? dashboard.members : [];
+    addresses = dashboard?.state === "APPROVED" ? dashboard.addresses : [];
   }
 
   return Response.json(
@@ -99,6 +187,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       orgNumber,
       customerName: resolvedCustomerName,
       companyMembers,
+      addresses,
       activeTab,
       storefrontTabsBaseUrl,
     },
@@ -117,6 +206,7 @@ export default function AppProxyDashboard() {
     orgNumber,
     customerName,
     companyMembers,
+    addresses,
     activeTab,
     storefrontTabsBaseUrl,
   } = useLoaderData<typeof loader>();
@@ -127,6 +217,7 @@ export default function AppProxyDashboard() {
         orgNumber={orgNumber}
         customerName={customerName}
         companyMembers={companyMembers}
+        addresses={addresses}
         activeTab={activeTab}
         storefrontTabsBaseUrl={storefrontTabsBaseUrl}
       />

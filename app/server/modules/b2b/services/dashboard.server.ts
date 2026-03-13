@@ -2,6 +2,23 @@ import type { PrismaClient } from "@prisma/client";
 import { companyMemberRepository } from "../repositories/company-member.server";
 import { customerDirectoryService } from "../../shopify/services/customer-directory.server";
 
+export type CompanyAddressView = {
+  id: string;
+  type: "BILLING" | "SHIPPING";
+  label: string | null;
+  isDefault: boolean;
+  firstName: string | null;
+  lastName: string | null;
+  company: string | null;
+  address1: string;
+  address2: string | null;
+  city: string;
+  province: string | null;
+  zip: string;
+  country: string;
+  phone: string | null;
+};
+
 export type B2BDashboardData =
   | {
       state: "PENDING_OR_MISSING";
@@ -22,6 +39,7 @@ export type B2BDashboardData =
         role: string;
         status: string;
       }>;
+      addresses: CompanyAddressView[];
     };
 
 export const dashboardService = {
@@ -71,6 +89,12 @@ export const dashboardService = {
       shop,
       members.map((member) => member.shopifyCustomerId),
     );
+    const addresses = await db.companyAddress.findMany({
+      where: {
+        companyId: approvedMembership.companyId,
+      },
+      orderBy: [{ type: "asc" }, { isDefault: "desc" }, { createdAt: "asc" }],
+    });
 
     return {
       state: "APPROVED",
@@ -86,6 +110,22 @@ export const dashboardService = {
         email: customerDetailsById.get(member.shopifyCustomerId)?.email ?? null,
         role: member.role,
         status: member.status,
+      })),
+      addresses: addresses.map((address) => ({
+        id: address.id,
+        type: address.type,
+        label: address.label ?? null,
+        isDefault: address.isDefault,
+        firstName: address.firstName ?? null,
+        lastName: address.lastName ?? null,
+        company: address.company ?? null,
+        address1: address.address1,
+        address2: address.address2 ?? null,
+        city: address.city,
+        province: address.province ?? null,
+        zip: address.zip,
+        country: address.country,
+        phone: address.phone ?? null,
       })),
     };
   },

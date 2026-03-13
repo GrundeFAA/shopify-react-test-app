@@ -7,12 +7,30 @@ type MockCompanyMember = {
   status: string;
 };
 
+type MockCompanyAddress = {
+  id: string;
+  type: "BILLING" | "SHIPPING";
+  label: string | null;
+  isDefault: boolean;
+  firstName: string | null;
+  lastName: string | null;
+  company: string | null;
+  address1: string;
+  address2: string | null;
+  city: string;
+  province: string | null;
+  zip: string;
+  country: string;
+  phone: string | null;
+};
+
 type MockDashboardData = {
   membershipState: "APPROVED";
   companyName: string;
   orgNumber: string;
   customerName: string;
   companyMembers: MockCompanyMember[];
+  addresses: MockCompanyAddress[];
 };
 
 export function getMockAppProxyDashboardData(): MockDashboardData {
@@ -45,6 +63,56 @@ export function getMockAppProxyDashboardData(): MockDashboardData {
         email: "per.berg@example.no",
         role: "USER",
         status: "PENDING",
+      },
+    ],
+    addresses: [
+      {
+        id: "mock-addr-1",
+        type: "SHIPPING",
+        label: "Hovedlager",
+        isDefault: true,
+        firstName: "Ola",
+        lastName: "Nordmann",
+        company: "Reolteknikk Sandbox AS",
+        address1: "Industriveien 10",
+        address2: null,
+        city: "Lillestrom",
+        province: null,
+        zip: "2000",
+        country: "Norway",
+        phone: "+47 90000001",
+      },
+      {
+        id: "mock-addr-2",
+        type: "SHIPPING",
+        label: "Prosjekt Oslo Vest",
+        isDefault: false,
+        firstName: "Kari",
+        lastName: "Hansen",
+        company: "Reolteknikk Sandbox AS",
+        address1: "Drammensveien 120",
+        address2: null,
+        city: "Oslo",
+        province: null,
+        zip: "0277",
+        country: "Norway",
+        phone: "+47 90000002",
+      },
+      {
+        id: "mock-addr-3",
+        type: "BILLING",
+        label: "Faktura",
+        isDefault: true,
+        firstName: null,
+        lastName: null,
+        company: "Reolteknikk Sandbox AS",
+        address1: "Postboks 45",
+        address2: null,
+        city: "Lillestrom",
+        province: null,
+        zip: "2001",
+        country: "Norway",
+        phone: null,
       },
     ],
   };

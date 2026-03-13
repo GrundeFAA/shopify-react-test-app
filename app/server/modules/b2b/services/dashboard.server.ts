@@ -19,13 +19,23 @@ export type CompanyAddressView = {
   phone: string | null;
 };
 
+// Identity of any customer resolved from the Shopify Admin API.
+// Used to enrich local member records and identify the logged-in user.
+export type CustomerIdentity = {
+  shopifyCustomerId: string;
+  fullName: string | null;
+  email: string | null;
+};
+
 export type B2BDashboardData =
   | {
       state: "PENDING_OR_MISSING";
       pendingCompanyName: string | null;
+      currentCustomer: CustomerIdentity | null;
     }
   | {
       state: "APPROVED";
+      currentCustomer: CustomerIdentity | null;
       company: {
         id: string;
         name: string;
@@ -41,6 +51,18 @@ export type B2BDashboardData =
       }>;
       addresses: CompanyAddressView[];
     };
+
+function toCustomerIdentity(
+  shopifyCustomerId: string,
+  detailsMap: Awaited<ReturnType<typeof customerDirectoryService.getByIds>>,
+): CustomerIdentity {
+  const detail = detailsMap.get(shopifyCustomerId);
+  return {
+    shopifyCustomerId,
+    fullName: detail?.fullName ?? null,
+    email: detail?.email ?? null,
+  };
+}
 
 export const dashboardService = {
   async getForCustomer(
@@ -59,19 +81,19 @@ export const dashboardService = {
     });
 
     if (!approvedMembership) {
-      const pendingMembership = await db.companyMember.findFirst({
-        where: {
-          shop,
-          shopifyCustomerId,
-          status: "PENDING",
-        },
-        include: { company: true },
-        orderBy: { createdAt: "asc" },
-      });
+      const [pendingMembership, customerDetailsById] = await Promise.all([
+        db.companyMember.findFirst({
+          where: { shop, shopifyCustomerId, status: "PENDING" },
+          include: { company: true },
+          orderBy: { createdAt: "asc" },
+        }),
+        customerDirectoryService.getByIds(shop, [shopifyCustomerId]),
+      ]);
 
       return {
         state: "PENDING_OR_MISSING",
         pendingCompanyName: pendingMembership?.company.name ?? null,
+        currentCustomer: toCustomerIdentity(shopifyCustomerId, customerDetailsById),
       };
     }
 
@@ -85,19 +107,21 @@ export const dashboardService = {
       role: string;
       status: string;
     }>;
-    const customerDetailsById = await customerDirectoryService.getByIds(
-      shop,
-      members.map((member) => member.shopifyCustomerId),
-    );
-    const addresses = await db.companyAddress.findMany({
-      where: {
-        companyId: approvedMembership.companyId,
-      },
-      orderBy: [{ type: "asc" }, { isDefault: "desc" }, { createdAt: "asc" }],
-    });
+
+    const [customerDetailsById, addresses] = await Promise.all([
+      customerDirectoryService.getByIds(
+        shop,
+        members.map((member) => member.shopifyCustomerId),
+      ),
+      db.companyAddress.findMany({
+        where: { companyId: approvedMembership.companyId },
+        orderBy: [{ type: "asc" }, { isDefault: "desc" }, { createdAt: "asc" }],
+      }),
+    ]);
 
     return {
       state: "APPROVED",
+      currentCustomer: toCustomerIdentity(shopifyCustomerId, customerDetailsById),
       company: {
         id: approvedMembership.company.id,
         name: approvedMembership.company.name,

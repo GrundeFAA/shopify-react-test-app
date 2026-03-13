@@ -75,28 +75,46 @@ export const b2bRouter = createTRPCRouter({
   getDashboardForCustomer: publicProcedure
     .input(z.object({ shop: z.string().min(1), customerId: z.string().min(1) }))
     .query(async ({ ctx, input }) => {
-      return dashboardService.getForCustomer(ctx.db, input.shop, input.customerId);
+      return dashboardService.getForCustomer(
+        ctx.db,
+        input.shop,
+        input.customerId,
+      );
     }),
 
-  getDashboardForContextCustomer: customerShopContextProcedure.query(async ({ ctx }) => {
-    return dashboardService.getForCustomer(ctx.db, ctx.shop, ctx.customerId);
-  }),
+  getDashboardForContextCustomer: customerShopContextProcedure.query(
+    async ({ ctx }) => {
+      return dashboardService.getForCustomer(ctx.db, ctx.shop, ctx.customerId);
+    },
+  ),
 
   syncCustomerWebhook: shopContextProcedure
     .input(z.object({ payload: z.unknown() }))
     .mutation(async ({ ctx, input }) => {
-      return customerSyncService.syncFromShopifyWebhook(ctx.db, input.payload, ctx.shop);
+      return customerSyncService.syncFromShopifyWebhook(
+        ctx.db,
+        input.payload,
+        ctx.shop,
+      );
     }),
 
   getCompanyAddresses: customerShopContextProcedure.query(async ({ ctx }) => {
-    const membership = await getApprovedMembership(ctx.db, ctx.shop, ctx.customerId);
+    const membership = await getApprovedMembership(
+      ctx.db,
+      ctx.shop,
+      ctx.customerId,
+    );
     return companyAddressRepository.findByCompany(ctx.db, membership.companyId);
   }),
 
   createCompanyAddress: customerShopContextProcedure
     .input(addressCreateSchema)
     .mutation(async ({ ctx, input }) => {
-      const membership = await getApprovedMembership(ctx.db, ctx.shop, ctx.customerId);
+      const membership = await getApprovedMembership(
+        ctx.db,
+        ctx.shop,
+        ctx.customerId,
+      );
 
       const address = await companyAddressRepository.create(ctx.db, {
         companyId: membership.companyId,
@@ -127,8 +145,15 @@ export const b2bRouter = createTRPCRouter({
   updateCompanyAddress: customerShopContextProcedure
     .input(addressUpdateSchema)
     .mutation(async ({ ctx, input }) => {
-      const membership = await getApprovedMembership(ctx.db, ctx.shop, ctx.customerId);
-      const existing = await companyAddressRepository.findById(ctx.db, input.id);
+      const membership = await getApprovedMembership(
+        ctx.db,
+        ctx.shop,
+        ctx.customerId,
+      );
+      const existing = await companyAddressRepository.findById(
+        ctx.db,
+        input.id,
+      );
       if (!existing || existing.companyId !== membership.companyId) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -136,21 +161,25 @@ export const b2bRouter = createTRPCRouter({
         });
       }
 
-      const updatedAddress = await companyAddressRepository.update(ctx.db, existing.id, {
-        type: input.type,
-        label: input.label,
-        isDefault: input.isDefault,
-        firstName: input.firstName,
-        lastName: input.lastName,
-        company: input.company,
-        address1: input.address1,
-        address2: input.address2,
-        city: input.city,
-        province: input.province,
-        zip: input.zip,
-        country: input.country,
-        phone: input.phone,
-      });
+      const updatedAddress = await companyAddressRepository.update(
+        ctx.db,
+        existing.id,
+        {
+          type: input.type,
+          label: input.label,
+          isDefault: input.isDefault,
+          firstName: input.firstName,
+          lastName: input.lastName,
+          company: input.company,
+          address1: input.address1,
+          address2: input.address2,
+          city: input.city,
+          province: input.province,
+          zip: input.zip,
+          country: input.country,
+          phone: input.phone,
+        },
+      );
 
       await addressSyncService.syncAddressForApprovedMembers(ctx.db, {
         shop: ctx.shop,
@@ -164,8 +193,15 @@ export const b2bRouter = createTRPCRouter({
   deleteCompanyAddress: customerShopContextProcedure
     .input(z.object({ id: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
-      const membership = await getApprovedMembership(ctx.db, ctx.shop, ctx.customerId);
-      const existing = await companyAddressRepository.findById(ctx.db, input.id);
+      const membership = await getApprovedMembership(
+        ctx.db,
+        ctx.shop,
+        ctx.customerId,
+      );
+      const existing = await companyAddressRepository.findById(
+        ctx.db,
+        input.id,
+      );
       if (!existing || existing.companyId !== membership.companyId) {
         throw new TRPCError({
           code: "NOT_FOUND",

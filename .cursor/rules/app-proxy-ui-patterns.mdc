@@ -1,0 +1,66 @@
+---
+description: UI patterns for the Shopify App Proxy dashboard (no client-side JS)
+globs: app/routes/app-proxy.*.tsx,app/frontend/**/*.tsx
+alwaysApply: false
+---
+
+# App Proxy UI Patterns
+
+The app proxy dashboard is served through Shopify's storefront servers.
+React client-side hydration does NOT activate in this context.
+
+## What does NOT work
+
+- `useState` — state changes are silently ignored, UI never updates
+- `onClick` handlers on buttons — no effect
+- `useEffect`, `useNavigation`, `useTransition` — not running
+
+## What DOES work
+
+- Server-rendered HTML (initial render only)
+- Plain `<a href>` links — full page navigations
+- HTML `<form method="post">` and `<Form method="post">` from react-router — standard browser form submissions
+- `redirect()` returned from the action — browser follows it
+
+## Pattern: URL-driven state
+
+Use query params instead of `useState`. Read them in the loader, pass as props.
+
+```tsx
+// ❌ WRONG — onClick and useState are dead
+const [showForm, setShowForm] = useState(false);
+<button onClick={() => setShowForm(true)}>Legg til</button>
+{showForm ? <Form /> : null}
+
+// ✅ CORRECT — URL-driven, works without JS
+// In loader: const formMode = url.searchParams.get("form");
+// Passed as prop: formMode === "create"
+<a href={`${baseUrl}?tab=adresser&form=create`}>Legg til</a>
+{formMode === "create" ? <Form cancelHref={`${baseUrl}?tab=adresser`} /> : null}
+```
+
+## Pattern: Action redirect after mutation
+
+Return `redirect()` from the action — never `Response.json({ ok: true })` alone.
+The redirect clears the form state from the URL and reloads the page with fresh loader data.
+
+```tsx
+// ❌ WRONG — browser displays raw JSON
+return Response.json({ ok: true });
+
+// ✅ CORRECT — browser navigates back, form disappears, data reloads
+const redirectUrl = new URL(url.toString());
+redirectUrl.searchParams.delete("form");
+redirectUrl.searchParams.delete("addressId");
+return redirect(redirectUrl.toString());
+```
+
+## Pattern: Navigation links instead of onClick
+
+Use `actionHref` on `DataTable` (renders `<a>`) instead of `onActionClick` (requires JS).
+For per-row actions, add a column with `render: (row) => <a href={...}>` instead of `rowAction.onClick`.
+
+## Reference
+
+See `app/routes/app-proxy.dashboard.tsx` and `app/frontend/components/dashboard/AccountTabs.tsx`
+for working examples of this pattern.

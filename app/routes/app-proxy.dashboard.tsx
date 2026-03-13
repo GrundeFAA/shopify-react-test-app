@@ -68,11 +68,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const caller = createTrpcCaller({ request, shop, customerId });
 
   const redirectToAddresses = () => {
-    const redirectUrl = new URL(url.toString());
-    redirectUrl.searchParams.set("tab", "adresser");
-    redirectUrl.searchParams.delete("form");
-    redirectUrl.searchParams.delete("addressId");
-    return redirect(redirectUrl.toString());
+    // Must redirect to the Shopify storefront URL, not the app server URL.
+    // Redirecting to the app server URL bypasses the App Proxy, causing HMAC
+    // validation to fail with a 400 Bad Request on the next load.
+    const pathPrefix = url.searchParams.get("path_prefix") ?? "/apps/rt-auth";
+    const normalizedRedirectShop = normalizeShopDomain(shop);
+    const storefrontBase = normalizedRedirectShop
+      ? `https://${normalizedRedirectShop}${pathPrefix}/dashboard`
+      : `${pathPrefix}/dashboard`;
+    return redirect(`${storefrontBase}?tab=adresser`);
   };
 
   if (intent === "create-address") {
@@ -122,11 +126,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const customerId = url.searchParams.get("logged_in_customer_id");
   const shop = url.searchParams.get("shop");
-  const customerFirstName = url.searchParams.get(
-    "logged_in_customer_first_name",
-  );
-  const customerLastName = url.searchParams.get("logged_in_customer_last_name");
-  const customerEmail = url.searchParams.get("logged_in_customer_email");
+  // Note: Shopify App Proxy only injects logged_in_customer_id.
+  // First/last name and email are NOT injected — always fetch from Admin API.
   const requestedTab = url.searchParams.get("tab");
   const formMode = url.searchParams.get("form");
   const editingAddressId = url.searchParams.get("addressId");
@@ -141,11 +142,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const storefrontTabsBaseUrl = normalizedShop
     ? `https://${normalizedShop}${tabsBasePath}`
     : tabsBasePath;
-  const customerName =
-    [customerFirstName, customerLastName].filter(Boolean).join(" ").trim() ||
-    customerEmail ||
-    null;
-
   let membershipState: "PENDING_OR_MISSING" | "APPROVED" | null = null;
   let companyName: string | null = null;
   let orgNumber: string | null = null;
@@ -158,7 +154,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     status: string;
   }> = [];
   let addresses: CompanyAddressRow[] = [];
-  let resolvedCustomerName: string | null = customerName;
+  let resolvedCustomerName: string | null = null;
 
   if (shouldUseMockAppProxyDashboardData()) {
     const mock = getMockAppProxyDashboardData();
@@ -167,7 +163,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     orgNumber = mock.orgNumber;
     companyMembers = mock.companyMembers;
     addresses = mock.addresses;
-    resolvedCustomerName = customerName ?? mock.customerName;
+    resolvedCustomerName = mock.customerName;
   } else {
     const caller = createTrpcCaller({ request, shop, customerId });
     const dashboard =
@@ -185,6 +181,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       dashboard?.state === "APPROVED" ? dashboard.company.orgNumber : null;
     companyMembers = dashboard?.state === "APPROVED" ? dashboard.members : [];
     addresses = dashboard?.state === "APPROVED" ? dashboard.addresses : [];
+    // currentCustomer is resolved by the service via Shopify Admin API.
+    resolvedCustomerName =
+      dashboard?.currentCustomer?.fullName ??
+      dashboard?.currentCustomer?.email ??
+      null;
   }
 
   return Response.json(

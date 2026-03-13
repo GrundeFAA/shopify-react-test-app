@@ -64,7 +64,7 @@ function AddressForm({
 
   return (
     <form
-      className="space-y-3 rounded-md border border-slate-200 bg-slate-50 p-4"
+      className="space-y-3 rounded-md border border-slate-200 !bg-slate-50 p-4"
       onSubmit={async (event) => {
         event.preventDefault();
         const form = event.currentTarget;
@@ -205,7 +205,7 @@ function AddressForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
+          className="rounded-md !bg-indigo-600 px-3 py-2 text-sm font-semibold !text-white hover:!bg-indigo-500 disabled:opacity-50"
         >
           {submitLabel}
         </button>
@@ -213,7 +213,7 @@ function AddressForm({
           type="button"
           disabled={isSubmitting}
           onClick={onCancel}
-          className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+          className="rounded-md border border-slate-300 !bg-white px-3 py-2 text-sm !text-slate-700 hover:!bg-slate-100 disabled:opacity-50"
         >
           Avbryt
         </button>
@@ -244,7 +244,7 @@ export function CompanyAddressesTable({
   return (
     <div className="space-y-3">
       {actionError ? (
-        <div className="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-md border border-rose-200 !bg-rose-50 px-4 py-3 text-sm !text-rose-700">
           <strong>Feil:</strong> {actionError}
         </div>
       ) : null}
@@ -312,7 +312,7 @@ export function CompanyAddressesTable({
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => onStartEdit(row.id)}
-                className="text-sm font-medium text-indigo-600 hover:text-indigo-900"
+                className="text-sm font-medium !text-indigo-600 hover:!text-indigo-900 disabled:opacity-50"
               >
                 Rediger
               </button>
@@ -328,7 +328,7 @@ export function CompanyAddressesTable({
                 onClick={() => {
                   void onDeleteAddress(row.id);
                 }}
-                className="text-sm font-medium text-rose-600 hover:text-rose-800"
+                className="text-sm font-medium !text-rose-600 hover:!text-rose-800 disabled:opacity-50"
               >
                 Slett
               </button>

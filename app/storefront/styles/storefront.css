@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+/*
+ * CSS isolation for the B2B dashboard mount point.
+ *
+ * WHY THIS EXISTS:
+ * Tailwind v4 places all utilities inside @layer utilities. Any unlayered
+ * author CSS in the host theme beats layered styles regardless of specificity.
+ * These reset rules use #rt-b2b-root (ID-level) specificity to neutralise
+ * common theme overrides on element types.
+ *
+ * WHY IT DOESN'T KILL TAILWIND UTILITIES:
+ * These resets have NO !important. Tailwind utility classes marked with the
+ * ! prefix generate !important declarations that beat unlayered non-important
+ * rules, so !bg-indigo-600 wins over this reset.
+ */
+
+#rt-b2b-root *,
+#rt-b2b-root *::before,
+#rt-b2b-root *::after {
+  box-sizing: border-box;
+}
+
+#rt-b2b-root {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: rgb(15 23 42);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#rt-b2b-root button {
+  background-color: transparent;
+  background-image: none;
+  border-width: 0;
+  border-style: solid;
+  border-color: currentColor;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  line-height: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  text-align: left;
+  display: inline-block;
+  text-transform: none;
+  -webkit-appearance: button;
+}
+
+#rt-b2b-root a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#rt-b2b-root ul,
+#rt-b2b-root ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#rt-b2b-root h1,
+#rt-b2b-root h2,
+#rt-b2b-root h3,
+#rt-b2b-root h4,
+#rt-b2b-root h5,
+#rt-b2b-root h6 {
+  font-size: inherit;
+  font-weight: inherit;
+  margin: 0;
+}
+
+#rt-b2b-root p {
+  margin: 0;
+}
+
+#rt-b2b-root input,
+#rt-b2b-root select,
+#rt-b2b-root textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  background-color: transparent;
+}
+
+#rt-b2b-root table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}

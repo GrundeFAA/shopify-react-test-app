@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom/client";
-import "../frontend/styles/tailwind.css";
+import "./styles/storefront.css";
 import { StorefrontApp } from "./App";
 
 let mounted = false;

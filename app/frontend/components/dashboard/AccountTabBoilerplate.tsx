@@ -7,6 +7,9 @@ type AccountTabBoilerplateProps = {
   activeTab: AccountTabId;
   companyMembers: CompanyScopedMember[];
   addresses: CompanyAddressRow[];
+  formMode: string | null;
+  editingAddressId: string | null;
+  storefrontTabsBaseUrl: string;
 };
 
 type BoilerplateContent = {
@@ -67,6 +70,9 @@ export function AccountTabBoilerplate({
   activeTab,
   companyMembers,
   addresses,
+  formMode,
+  editingAddressId,
+  storefrontTabsBaseUrl,
 }: AccountTabBoilerplateProps) {
   const content = contentByTab[activeTab];
 
@@ -81,7 +87,12 @@ export function AccountTabBoilerplate({
         </div>
       ) : activeTab === "adresser" ? (
         <div className="mt-4">
-          <CompanyAddressesTable addresses={addresses} />
+          <CompanyAddressesTable
+            addresses={addresses}
+            formMode={formMode}
+            editingAddressId={editingAddressId}
+            baseUrl={storefrontTabsBaseUrl}
+          />
         </div>
       ) : activeTab === "ordrer" ? (
         <div className="mt-4">

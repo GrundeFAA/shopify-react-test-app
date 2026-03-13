@@ -16,6 +16,7 @@ type DataTableProps<Row> = {
   getRowId: (row: Row) => string;
   actionLabel?: string;
   onActionClick?: () => void;
+  actionHref?: string;
   emptyStateText?: string;
   rowAction?: {
     label: string;
@@ -31,6 +32,7 @@ export function DataTable<Row>({
   getRowId,
   actionLabel,
   onActionClick,
+  actionHref,
   emptyStateText = "Ingen rader funnet.",
   rowAction,
 }: DataTableProps<Row>) {
@@ -43,13 +45,22 @@ export function DataTable<Row>({
         </div>
         {actionLabel ? (
           <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-            <button
-              type="button"
-              onClick={onActionClick}
-              className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              {actionLabel}
-            </button>
+            {actionHref ? (
+              <a
+                href={actionHref}
+                className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                {actionLabel}
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={onActionClick}
+                className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                {actionLabel}
+              </button>
+            )}
           </div>
         ) : null}
       </div>

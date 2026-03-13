@@ -12,6 +12,8 @@ type AppProxyDashboardPageProps = {
   customerName: string | null;
   companyMembers: CompanyScopedMember[];
   addresses: CompanyAddressRow[];
+  formMode: string | null;
+  editingAddressId: string | null;
   activeTab: AccountTabId;
   storefrontTabsBaseUrl: string;
 };
@@ -22,6 +24,8 @@ export function AppProxyDashboardPage({
   customerName,
   companyMembers,
   addresses,
+  formMode,
+  editingAddressId,
   activeTab,
   storefrontTabsBaseUrl,
 }: AppProxyDashboardPageProps) {
@@ -47,6 +51,9 @@ export function AppProxyDashboardPage({
             activeTab={activeTab}
             companyMembers={companyMembers}
             addresses={addresses}
+            formMode={formMode}
+            editingAddressId={editingAddressId}
+            storefrontTabsBaseUrl={storefrontTabsBaseUrl}
           />
         </section>
 

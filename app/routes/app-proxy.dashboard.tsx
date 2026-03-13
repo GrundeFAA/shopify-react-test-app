@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { useLoaderData } from "react-router";
+import { redirect, useLoaderData } from "react-router";
 import { AppProxyProvider } from "@shopify/shopify-app-react-router/react";
 import { AppProxyDashboardPage } from "../frontend/pages/AppProxyDashboardPage";
 import type { AccountTabId } from "../frontend/components/dashboard/AccountTabs";
@@ -67,6 +67,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const intent = formData.get("intent");
   const caller = createTrpcCaller({ request, shop, customerId });
 
+  const redirectToAddresses = () => {
+    const redirectUrl = new URL(url.toString());
+    redirectUrl.searchParams.set("tab", "adresser");
+    redirectUrl.searchParams.delete("form");
+    redirectUrl.searchParams.delete("addressId");
+    return redirect(redirectUrl.toString());
+  };
+
   if (intent === "create-address") {
     const typeValue = formData.get("type");
     if (typeValue !== "BILLING" && typeValue !== "SHIPPING") {
@@ -77,7 +85,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       type: typeValue,
       ...toOptionalAddressInput(formData),
     });
-    return Response.json({ ok: true });
+    return redirectToAddresses();
   }
 
   if (intent === "update-address") {
@@ -92,7 +100,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       type: typeValue,
       ...toOptionalAddressInput(formData),
     });
-    return Response.json({ ok: true });
+    return redirectToAddresses();
   }
 
   if (intent === "delete-address") {
@@ -102,7 +110,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
 
     await caller.b2b.deleteCompanyAddress({ id });
-    return Response.json({ ok: true });
+    return redirectToAddresses();
   }
 
   return Response.json({ ok: false, error: "Unknown intent" }, { status: 400 });
@@ -120,6 +128,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const customerLastName = url.searchParams.get("logged_in_customer_last_name");
   const customerEmail = url.searchParams.get("logged_in_customer_email");
   const requestedTab = url.searchParams.get("tab");
+  const formMode = url.searchParams.get("form");
+  const editingAddressId = url.searchParams.get("addressId");
   const activeTab: AccountTabId = validTabs.includes(
     requestedTab as AccountTabId,
   )
@@ -188,6 +198,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       customerName: resolvedCustomerName,
       companyMembers,
       addresses,
+      formMode,
+      editingAddressId,
       activeTab,
       storefrontTabsBaseUrl,
     },
@@ -207,6 +219,8 @@ export default function AppProxyDashboard() {
     customerName,
     companyMembers,
     addresses,
+    formMode,
+    editingAddressId,
     activeTab,
     storefrontTabsBaseUrl,
   } = useLoaderData<typeof loader>();
@@ -218,6 +232,8 @@ export default function AppProxyDashboard() {
         customerName={customerName}
         companyMembers={companyMembers}
         addresses={addresses}
+        formMode={formMode}
+        editingAddressId={editingAddressId}
         activeTab={activeTab}
         storefrontTabsBaseUrl={storefrontTabsBaseUrl}
       />

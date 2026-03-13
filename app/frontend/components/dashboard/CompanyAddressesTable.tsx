@@ -1,5 +1,4 @@
-import { useMemo, useState } from "react";
-import { Form, useNavigation } from "react-router";
+import { Form } from "react-router";
 import { DataTable } from "../table/DataTable";
 
 export type CompanyAddressRow = {
@@ -21,13 +20,16 @@ export type CompanyAddressRow = {
 
 type CompanyAddressesTableProps = {
   addresses: CompanyAddressRow[];
+  formMode: string | null;
+  editingAddressId: string | null;
+  baseUrl: string;
 };
 
 type AddressFormProps = {
   intent: "create-address" | "update-address";
   submitLabel: string;
   address?: CompanyAddressRow | null;
-  onCancel: () => void;
+  cancelHref: string;
 };
 
 function toDisplayType(type: CompanyAddressRow["type"]): string {
@@ -42,10 +44,8 @@ function toDisplayName(address: CompanyAddressRow): string {
   return "Uten navn";
 }
 
-function AddressForm({ intent, submitLabel, address, onCancel }: AddressFormProps) {
+function AddressForm({ intent, submitLabel, address, cancelHref }: AddressFormProps) {
   const isEditing = intent === "update-address" && !!address;
-  const navigation = useNavigation();
-  const isSubmitting = navigation.state === "submitting";
 
   return (
     <Form method="post" className="space-y-3 rounded-md border border-slate-200 bg-slate-50 p-4">
@@ -183,31 +183,34 @@ function AddressForm({ intent, submitLabel, address, onCancel }: AddressFormProp
       <div className="flex items-center gap-3">
         <button
           type="submit"
-          disabled={isSubmitting}
-          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
         >
-          {isSubmitting ? "Lagrer..." : submitLabel}
+          {submitLabel}
         </button>
-        <button
-          type="button"
-          onClick={onCancel}
+        <a
+          href={cancelHref}
           className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
         >
           Avbryt
-        </button>
+        </a>
       </div>
     </Form>
   );
 }
 
-export function CompanyAddressesTable({ addresses }: CompanyAddressesTableProps) {
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+export function CompanyAddressesTable({
+  addresses,
+  formMode,
+  editingAddressId,
+  baseUrl,
+}: CompanyAddressesTableProps) {
+  const showCreateForm = formMode === "create";
+  const editingAddress =
+    formMode === "edit" && editingAddressId
+      ? (addresses.find((address) => address.id === editingAddressId) ?? null)
+      : null;
 
-  const editingAddress = useMemo(
-    () => addresses.find((address) => address.id === editingId) ?? null,
-    [addresses, editingId],
-  );
+  const cancelHref = `${baseUrl}?tab=adresser`;
 
   return (
     <div className="space-y-3">
@@ -215,7 +218,7 @@ export function CompanyAddressesTable({ addresses }: CompanyAddressesTableProps)
         <AddressForm
           intent="create-address"
           submitLabel="Opprett adresse"
-          onCancel={() => setShowCreateForm(false)}
+          cancelHref={cancelHref}
         />
       ) : null}
 
@@ -224,7 +227,7 @@ export function CompanyAddressesTable({ addresses }: CompanyAddressesTableProps)
           intent="update-address"
           address={editingAddress}
           submitLabel="Lagre endringer"
-          onCancel={() => setEditingId(null)}
+          cancelHref={cancelHref}
         />
       ) : null}
 
@@ -234,18 +237,8 @@ export function CompanyAddressesTable({ addresses }: CompanyAddressesTableProps)
         rows={addresses}
         getRowId={(row) => row.id}
         actionLabel="Legg til adresse"
-        onActionClick={() => {
-          setEditingId(null);
-          setShowCreateForm(true);
-        }}
+        actionHref={`${baseUrl}?tab=adresser&form=create`}
         emptyStateText="Ingen adresser funnet."
-        rowAction={{
-          label: "Rediger",
-          onClick: (row) => {
-            setShowCreateForm(false);
-            setEditingId(row.id);
-          },
-        }}
         columns={[
           {
             key: "navn",
@@ -271,6 +264,18 @@ export function CompanyAddressesTable({ addresses }: CompanyAddressesTableProps)
             key: "standard",
             header: "Standard",
             render: (row) => (row.isDefault ? "Ja" : "Nei"),
+          },
+          {
+            key: "rediger",
+            header: "Rediger",
+            render: (row) => (
+              <a
+                href={`${baseUrl}?tab=adresser&form=edit&addressId=${row.id}`}
+                className="text-sm font-medium text-indigo-600 hover:text-indigo-900"
+              >
+                Rediger
+              </a>
+            ),
           },
           {
             key: "delete",

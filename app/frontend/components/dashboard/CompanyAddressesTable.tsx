@@ -31,6 +31,7 @@ type AddressFormProps = {
   submitLabel: string;
   address?: CompanyAddressRow | null;
   cancelHref: string;
+  formAction: string;
 };
 
 function toDisplayType(type: CompanyAddressRow["type"]): string {
@@ -45,11 +46,11 @@ function toDisplayName(address: CompanyAddressRow): string {
   return "Uten navn";
 }
 
-function AddressForm({ intent, submitLabel, address, cancelHref }: AddressFormProps) {
+function AddressForm({ intent, submitLabel, address, cancelHref, formAction }: AddressFormProps) {
   const isEditing = intent === "update-address" && !!address;
 
   return (
-    <Form method="post" className="space-y-3 rounded-md border border-slate-200 bg-slate-50 p-4">
+    <Form method="post" action={formAction} className="space-y-3 rounded-md border border-slate-200 bg-slate-50 p-4">
       <input type="hidden" name="intent" value={intent} />
       {isEditing ? <input type="hidden" name="id" value={address.id} /> : null}
 
@@ -227,6 +228,7 @@ export function CompanyAddressesTable({
           intent="create-address"
           submitLabel="Opprett adresse"
           cancelHref={cancelHref}
+          formAction={baseUrl}
         />
       ) : null}
 
@@ -236,6 +238,7 @@ export function CompanyAddressesTable({
           address={editingAddress}
           submitLabel="Lagre endringer"
           cancelHref={cancelHref}
+          formAction={baseUrl}
         />
       ) : null}
 
@@ -289,7 +292,7 @@ export function CompanyAddressesTable({
             key: "delete",
             header: "Slett",
             render: (row) => (
-              <Form method="post">
+              <Form method="post" action={baseUrl}>
                 <input type="hidden" name="intent" value="delete-address" />
                 <input type="hidden" name="id" value={row.id} />
                 <button

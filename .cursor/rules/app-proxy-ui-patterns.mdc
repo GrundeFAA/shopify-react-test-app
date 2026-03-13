@@ -19,8 +19,25 @@ React client-side hydration does NOT activate in this context.
 
 - Server-rendered HTML (initial render only)
 - Plain `<a href>` links — full page navigations
-- HTML `<form method="post">` and `<Form method="post">` from react-router — standard browser form submissions
+- `<Form method="post" action={baseUrl}>` from react-router — **must include explicit `action`**
 - `redirect()` returned from the action — browser follows it
+
+## CRITICAL: Always set an explicit `action` on `<Form>`
+
+Without an explicit `action`, React Router SSR renders the form with the **app server URL**
+(`railway.app/...`) as the action. The browser POSTs directly to the app server, bypassing
+Shopify's proxy. `authenticate.public.appProxy` gets a request with no valid HMAC → 400 Bad Request.
+
+```tsx
+// ❌ WRONG — no action, React Router SSR defaults to app server URL → Bad Request
+<Form method="post">
+
+// ✅ CORRECT — explicit Shopify storefront URL goes through the App Proxy
+<Form method="post" action={baseUrl}>
+```
+
+`baseUrl` is the Shopify storefront URL (e.g. `https://my-shop.myshopify.com/apps/rt-auth/dashboard`).
+It is constructed in the loader from `shop` + `path_prefix` query params and passed down as a prop.
 
 ## Pattern: URL-driven state
 

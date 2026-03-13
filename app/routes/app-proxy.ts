@@ -39,7 +39,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   return Response.json(buildPayload(request), {
     headers: {
-      "Cache-Control": "no-store, private",
+      "Cache-Control": "no-store",
     },
   });
 };

@@ -126,13 +126,6 @@ When you're ready to set up your app in production, you can follow [our deployme
 - [Render](https://render.com/docs/deploy-shopify-app): This tutorial guides you through using Docker to deploy and install apps on a Dev store.
 - [Manual deployment guide](https://shopify.dev/docs/apps/launch/deployment/deploy-to-hosting-service): This resource provides general guidance on the requirements of deployment including environment variables, secrets, and persistent data.
 
-### Storefront dashboard render mode
-
-This repository supports a feature flag for storefront dashboard rendering:
-
-- `STOREFRONT_DASHBOARD_RENDER_MODE=legacy-react` (default): render `app-proxy.dashboard` with existing React UI.
-- `STOREFRONT_DASHBOARD_RENDER_MODE=theme-first`: render a theme-first shell that loads `/theme-dashboard.js` and fetches app proxy JSON contracts.
-
 When you reach the step for [setting up environment variables](https://shopify.dev/docs/apps/deployment/web#set-env-vars), you also need to set the variable `NODE_ENV=production`.
 
 ## Gotchas / Troubleshooting

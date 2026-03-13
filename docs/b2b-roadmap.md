@@ -140,9 +140,6 @@ Customers can create new addresses during Shopify checkout. These are personal a
 - Admin user management UX exists as placeholders.
 - Membership states are available, but approval workflows need full UI/API actions.
 - Webhook parses customer note correctly, but post-processing cleanup (clear note, write `b2b` tag) is not yet implemented.
-- Theme-first storefront migration is in progress:
-  - app proxy JSON and mutation endpoints are available for theme rendering
-  - legacy React dashboard rendering remains behind `STOREFRONT_DASHBOARD_RENDER_MODE`
 
 ## 5.3 Not Implemented Yet
 
@@ -248,7 +245,6 @@ When implementing roadmap items:
 - Prefer additive schema changes with explicit migrations.
 - Keep dashboard access gated to authenticated storefront customer context.
 - Ensure role checks on all mutating endpoints.
-- Keep theme integrations on `/apps/rt-auth/*` routes and avoid direct app-domain API calls from Liquid.
 
 ## 10. Open Items (Deferred by Product Decision)
 

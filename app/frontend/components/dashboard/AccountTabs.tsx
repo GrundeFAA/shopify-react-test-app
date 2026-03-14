@@ -32,7 +32,7 @@ export function AccountTabs({ activeTab, onTabChange }: AccountTabsProps) {
           value={activeTab}
           onChange={(event) => onTabChange(event.currentTarget.value as AccountTabId)}
           aria-label="Select a tab"
-          className="col-start-1 row-start-1 w-full appearance-none rounded-md !bg-white py-2 pr-8 pl-3 text-base !text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
+          className="col-start-1 row-start-1 w-full appearance-none rounded-md !bg-white py-2 pr-8 pl-3 text-base !text-neutral-charcoal outline-1 -outline-offset-1 outline-neutral-medium-grey focus:outline-2 focus:-outline-offset-2 focus:outline-brand-secondary"
         >
           {tabs.map((tab) => (
             <option key={tab.id} value={tab.id}>
@@ -56,15 +56,15 @@ export function AccountTabs({ activeTab, onTabChange }: AccountTabsProps) {
                 aria-current={activeTab === tab.id ? "page" : undefined}
                 className={classNames(
                   activeTab === tab.id
-                    ? "!border-indigo-500 !text-indigo-600"
-                    : "border-transparent !text-gray-500 hover:border-gray-300 hover:!text-gray-700",
-                  "group !inline-flex cursor-pointer items-center border-b-2 px-1 py-4 text-sm font-medium",
+                    ? "!border-brand-secondary !text-brand-secondary"
+                    : "border-transparent !text-neutral-silver hover:border-neutral-medium-grey hover:!text-neutral-charcoal-light",
+                  "group !inline-flex cursor-pointer items-center border-b-2 px-1 py-4 text-small font-medium",
                 )}
               >
                 <tab.icon
                   aria-hidden="true"
                   className={classNames(
-                    activeTab === tab.id ? "!text-indigo-500" : "!text-gray-400 group-hover:!text-gray-500",
+                    activeTab === tab.id ? "!text-brand-secondary" : "!text-neutral-silver group-hover:!text-neutral-charcoal-light",
                     "mr-2 -ml-0.5 size-5",
                   )}
                 />

@@ -205,7 +205,7 @@ function AddressForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-md !bg-indigo-600 px-3 py-2 text-sm font-semibold !text-white hover:!bg-indigo-500 disabled:opacity-50"
+          className="btn btn-primary"
         >
           {submitLabel}
         </button>
@@ -213,7 +213,7 @@ function AddressForm({
           type="button"
           disabled={isSubmitting}
           onClick={onCancel}
-          className="rounded-md border border-slate-300 !bg-white px-3 py-2 text-sm !text-slate-700 hover:!bg-slate-100 disabled:opacity-50"
+          className="btn btn-tertiary"
         >
           Avbryt
         </button>
@@ -312,7 +312,7 @@ export function CompanyAddressesTable({
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => onStartEdit(row.id)}
-                className="text-sm font-medium !text-indigo-600 hover:!text-indigo-900 disabled:opacity-50"
+                className="btn btn-sm btn-tertiary-action"
               >
                 Rediger
               </button>
@@ -328,7 +328,7 @@ export function CompanyAddressesTable({
                 onClick={() => {
                   void onDeleteAddress(row.id);
                 }}
-                className="text-sm font-medium !text-rose-600 hover:!text-rose-800 disabled:opacity-50"
+                className="btn btn-sm btn-danger"
               >
                 Slett
               </button>

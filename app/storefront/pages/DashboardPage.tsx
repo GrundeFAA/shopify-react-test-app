@@ -208,8 +208,8 @@ export function DashboardPage() {
 
   if (dashboardQuery.isLoading) {
     return (
-      <main className="min-h-screen !bg-slate-50 p-6 !text-slate-900">
-        <div className="rounded-md border border-slate-200 !bg-white p-4 text-sm !text-slate-600">
+      <main className="min-h-screen !bg-neutral-off-white p-6 !text-neutral-charcoal">
+        <div className="rounded-md border border-neutral-medium-grey !bg-white p-4 text-small !text-neutral-silver">
           Laster dashboard...
         </div>
       </main>
@@ -218,8 +218,8 @@ export function DashboardPage() {
 
   if (dashboardQuery.isError) {
     return (
-      <main className="min-h-screen !bg-slate-50 p-6 !text-slate-900">
-        <div className="rounded-md border border-rose-200 !bg-rose-50 p-4 text-sm !text-rose-700">
+      <main className="min-h-screen !bg-neutral-off-white p-6 !text-neutral-charcoal">
+        <div className="rounded-md border !border-semantic-error !bg-semantic-info p-4 text-small !text-semantic-error">
           {toErrorMessage(dashboardQuery.error)}
         </div>
       </main>
@@ -227,27 +227,30 @@ export function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen !bg-slate-50 p-6 !text-slate-900">
-      <header className="mb-6 rounded-lg border border-slate-200 !bg-white p-5 shadow-sm">
-        <h1 className="!flex items-center gap-2 text-2xl font-bold !text-rose-600">
+    <main className="min-h-screen !bg-neutral-off-white p-6 !text-neutral-charcoal">
+      <header className="mb-6 rounded-lg border border-neutral-medium-grey !bg-white p-5 shadow-sm">
+        <h1 className="!flex items-center gap-2 text-h5 font-semibold !text-brand-primary">
           <BuildingOfficeIcon className="h-6 w-6" aria-hidden />
           {companyName ?? "Ukjent selskap"}
         </h1>
-        <p className="text-sm !text-slate-500">
+        <p className="mt-1 text-small !text-neutral-silver">
           {orgNumber ? `Org.nr: ${orgNumber}` : "Org.nr: ikke tilgjengelig"}
         </p>
-        <p className="mt-1 text-sm !text-slate-600">
-          Innlogget som: <span className="font-medium">{customerName ?? "Ukjent bruker"}</span>
+        <p className="mt-1 text-small !text-neutral-charcoal-light">
+          Innlogget som:{" "}
+          <span className="font-medium !text-neutral-charcoal">
+            {customerName ?? "Ukjent bruker"}
+          </span>
         </p>
         {dashboard?.state === "PENDING_OR_MISSING" ? (
-          <p className="mt-2 text-sm !text-amber-700">
-            Kontoen din venter pa godkjenning for B2B-funksjoner.
+          <p className="mt-2 text-small !text-semantic-warning">
+            Kontoen din venter på godkjenning for B2B-funksjoner.
           </p>
         ) : null}
       </header>
 
       <div className="space-y-4">
-        <section className="rounded-lg border border-slate-200 !bg-white pt-1 shadow-sm">
+        <section className="rounded-lg border border-neutral-medium-grey !bg-white pt-1 shadow-sm">
           <AccountTabs activeTab={activeTab} onTabChange={handleTabChange} />
           <AccountTabBoilerplate
             activeTab={activeTab}

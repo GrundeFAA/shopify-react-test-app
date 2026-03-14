@@ -1,7 +1,55 @@
 @import "tailwindcss";
 
-/*
- * CSS isolation for the B2B dashboard mount point.
+/* ============================================================
+ * DESIGN TOKENS
+ * Registered with Tailwind v4 @theme — generates utility
+ * classes: bg-brand-primary, text-brand-secondary, etc.
+ * ============================================================ */
+@theme {
+  /* Brand Colors */
+  --color-brand-primary: #c4262f;
+  --color-brand-primary-hover: #9b1e25;
+  --color-brand-secondary: #2d4d86;
+  --color-brand-secondary-hover: #1e3a6b;
+
+  /* Neutral System */
+  --color-neutral-charcoal: #2f2f2f;
+  --color-neutral-charcoal-light: #4a4a4a;
+  --color-neutral-silver: #828282;
+  --color-neutral-medium-grey: #d8d8d8;
+  --color-neutral-soft-grey: #f1f3f4;
+  --color-neutral-off-white: #f9f9f9;
+
+  /* Semantic Colors */
+  --color-semantic-success: #78a938;
+  --color-semantic-warning: #f59e0b;
+  --color-semantic-error: #cf556b;
+  --color-semantic-info: #e6f7ff;
+  --color-semantic-info-border: #b3e0ff;
+
+  /* Type Scale — generates text-h1, text-h2, text-body, text-small, etc. */
+  --text-h1-alt: 2.75rem; /* 44px */
+  --text-h1-alt--line-height: 1.2;
+  --text-h1: 2.5rem; /* 40px */
+  --text-h1--line-height: 1.25;
+  --text-h2: 2.25rem; /* 36px */
+  --text-h2--line-height: 1.25;
+  --text-h3: 2rem; /* 32px */
+  --text-h3--line-height: 1.25;
+  --text-h4: 1.75rem; /* 28px */
+  --text-h4--line-height: 1.3;
+  --text-h5: 1.5rem; /* 24px */
+  --text-h5--line-height: 1.3;
+  --text-intro: 1.25rem; /* 20px */
+  --text-intro--line-height: 1.5;
+  --text-body: 1rem; /* 16px */
+  --text-body--line-height: 1.55;
+  --text-small: 0.875rem; /* 14px */
+  --text-small--line-height: 1.5;
+}
+
+/* ============================================================
+ * CSS ISOLATION
  *
  * WHY THIS EXISTS:
  * Tailwind v4 places all utilities inside @layer utilities. Any unlayered
@@ -12,8 +60,8 @@
  * WHY IT DOESN'T KILL TAILWIND UTILITIES:
  * These resets have NO !important. Tailwind utility classes marked with the
  * ! prefix generate !important declarations that beat unlayered non-important
- * rules, so !bg-indigo-600 wins over this reset.
- */
+ * rules, so !bg-brand-primary wins over this reset.
+ * ============================================================ */
 
 #rt-b2b-root *,
 #rt-b2b-root *::before,
@@ -92,4 +140,97 @@
 #rt-b2b-root table {
   border-collapse: collapse;
   border-spacing: 0;
+}
+
+/* ============================================================
+ * BUTTON COMPONENT SYSTEM
+ *
+ * Unlayered + ID+class specificity (1,1,0) beats the element
+ * reset above (1,0,1), so these styles take effect without
+ * needing !important. Tailwind !-prefixed utilities still win.
+ * ============================================================ */
+
+#rt-b2b-root .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+  border-radius: 0.25rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+  user-select: none;
+}
+
+#rt-b2b-root .btn:disabled,
+#rt-b2b-root .btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Primary — brand red, main CTA */
+#rt-b2b-root .btn-primary {
+  background-color: #c4262f;
+  color: #ffffff;
+  border-color: #c4262f;
+}
+#rt-b2b-root .btn-primary:hover:not(:disabled) {
+  background-color: #9b1e25;
+  border-color: #9b1e25;
+}
+
+/* Secondary — brand navy blue */
+#rt-b2b-root .btn-secondary {
+  background-color: #2d4d86;
+  color: #ffffff;
+  border-color: #2d4d86;
+}
+#rt-b2b-root .btn-secondary:hover:not(:disabled) {
+  background-color: #1e3a6b;
+  border-color: #1e3a6b;
+}
+
+/* Tertiary — outlined, neutral */
+#rt-b2b-root .btn-tertiary {
+  background-color: #ffffff;
+  color: #2f2f2f;
+  border-color: #d8d8d8;
+}
+#rt-b2b-root .btn-tertiary:hover:not(:disabled) {
+  background-color: #f1f3f4;
+  border-color: #828282;
+}
+
+/* Tertiary action — outlined in brand secondary blue */
+#rt-b2b-root .btn-tertiary-action {
+  background-color: #ffffff;
+  color: #2d4d86;
+  border-color: #2d4d86;
+}
+#rt-b2b-root .btn-tertiary-action:hover:not(:disabled) {
+  background-color: #e6f7ff;
+}
+
+/* Danger — semantic error red, destructive actions */
+#rt-b2b-root .btn-danger {
+  background-color: #cf556b;
+  color: #ffffff;
+  border-color: #cf556b;
+}
+#rt-b2b-root .btn-danger:hover:not(:disabled) {
+  background-color: #b83e55;
+  border-color: #b83e55;
+}
+
+/* Size modifier — compact for inline/table use */
+#rt-b2b-root .btn-sm {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8125rem;
 }

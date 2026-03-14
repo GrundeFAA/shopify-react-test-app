@@ -229,9 +229,11 @@ export function DashboardPage() {
   return (
     <main className="min-h-screen !bg-neutral-off-white p-6 !text-neutral-charcoal">
       <header className="mb-6 rounded-lg border border-neutral-medium-grey !bg-white p-5 shadow-sm">
-        <h1 className="!flex items-center gap-2 text-h5 font-semibold !text-brand-primary">
-          <BuildingOfficeIcon className="h-6 w-6" aria-hidden />
-          {companyName ?? "Ukjent selskap"}
+        <h1
+          style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "1.5rem", fontWeight: 600, color: "#c4262f" }}
+        >
+          <BuildingOfficeIcon style={{ width: "1.5rem", height: "1.5rem", flexShrink: 0 }} aria-hidden />
+          {companyName || "Ukjent selskap"}
         </h1>
         <p className="mt-1 text-small !text-neutral-silver">
           {orgNumber ? `Org.nr: ${orgNumber}` : "Org.nr: ikke tilgjengelig"}
@@ -239,7 +241,7 @@ export function DashboardPage() {
         <p className="mt-1 text-small !text-neutral-charcoal-light">
           Innlogget som:{" "}
           <span className="font-medium !text-neutral-charcoal">
-            {customerName ?? "Ukjent bruker"}
+            {customerName || "Ukjent bruker"}
           </span>
         </p>
         {dashboard?.state === "PENDING_OR_MISSING" ? (

@@ -1,4 +1,5 @@
 import { DataTable } from "../table/DataTable";
+import { Modal } from "../ui/Modal";
 
 export type CompanyAddressRow = {
   id: string;
@@ -64,7 +65,7 @@ function AddressForm({
 
   return (
     <form
-      className="space-y-3 rounded-md border border-neutral-medium-grey bg-neutral-off-white p-4"
+      className="space-y-3"
       onSubmit={async (event) => {
         event.preventDefault();
         const form = event.currentTarget;
@@ -240,6 +241,8 @@ export function CompanyAddressesTable({
     formMode === "edit" && editingAddressId
       ? (addresses.find((address) => address.id === editingAddressId) ?? null)
       : null;
+  const isCreateModalOpen = showCreateForm;
+  const isEditModalOpen = Boolean(editingAddress);
 
   return (
     <div className="space-y-3">
@@ -249,7 +252,13 @@ export function CompanyAddressesTable({
         </div>
       ) : null}
 
-      {showCreateForm ? (
+      <Modal
+        isOpen={isCreateModalOpen}
+        title="Opprett adresse"
+        description="Legg til en ny leverings- eller fakturaadresse for selskapet."
+        onClose={onCancelForm}
+        size="lg"
+      >
         <AddressForm
           mode="create"
           submitLabel="Opprett adresse"
@@ -257,18 +266,26 @@ export function CompanyAddressesTable({
           onCancel={onCancelForm}
           onSubmit={onCreateAddress}
         />
-      ) : null}
+      </Modal>
 
-      {editingAddress ? (
-        <AddressForm
-          mode="edit"
-          address={editingAddress}
-          submitLabel="Lagre endringer"
-          isSubmitting={isSubmitting}
-          onCancel={onCancelForm}
-          onSubmit={async (formData) => onUpdateAddress(editingAddress.id, formData)}
-        />
-      ) : null}
+      <Modal
+        isOpen={isEditModalOpen}
+        title="Rediger adresse"
+        description="Oppdater valgt adresse."
+        onClose={onCancelForm}
+        size="lg"
+      >
+        {editingAddress ? (
+          <AddressForm
+            mode="edit"
+            address={editingAddress}
+            submitLabel="Lagre endringer"
+            isSubmitting={isSubmitting}
+            onCancel={onCancelForm}
+            onSubmit={async (formData) => onUpdateAddress(editingAddress.id, formData)}
+          />
+        ) : null}
+      </Modal>
 
       <DataTable
         title="Adresser"

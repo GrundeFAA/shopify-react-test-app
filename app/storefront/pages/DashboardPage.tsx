@@ -56,7 +56,7 @@ function toAddressCreateInput(formData: FormData): CreateAddressInput {
   return {
     type: typeValue,
     label: toNullableString(formData.get("label")),
-    isDefault: formData.get("isDefault") === "on",
+    isDefault: formData.has("isDefault"),
     firstName: toNullableString(formData.get("firstName")),
     lastName: toNullableString(formData.get("lastName")),
     company: toNullableString(formData.get("company")),

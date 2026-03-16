@@ -40,8 +40,8 @@ async function createCustomerAddress(
   const { admin } = await unauthenticated.admin(shop);
   const response = await admin.graphql(
     `#graphql
-    mutation CustomerAddressCreate($customerId: ID!, $address: MailingAddressInput!) {
-      customerAddressCreate(customerId: $customerId, address: $address) {
+    mutation CustomerAddressCreate($customerId: ID!, $address: MailingAddressInput!, $setAsDefault: Boolean) {
+      customerAddressCreate(customerId: $customerId, address: $address, setAsDefault: $setAsDefault) {
         address {
           id
         }
@@ -55,6 +55,7 @@ async function createCustomerAddress(
       variables: {
         customerId: toCustomerGid(shopifyCustomerId),
         address: toMailingAddressInput(address),
+        setAsDefault: address.isDefault,
       },
     },
   );
@@ -91,8 +92,8 @@ async function updateCustomerAddress(
   const { admin } = await unauthenticated.admin(shop);
   const response = await admin.graphql(
     `#graphql
-    mutation CustomerAddressUpdate($customerId: ID!, $addressId: ID!, $address: MailingAddressInput!) {
-      customerAddressUpdate(customerId: $customerId, addressId: $addressId, address: $address) {
+    mutation CustomerAddressUpdate($customerId: ID!, $addressId: ID!, $address: MailingAddressInput!, $setAsDefault: Boolean) {
+      customerAddressUpdate(customerId: $customerId, addressId: $addressId, address: $address, setAsDefault: $setAsDefault) {
         address {
           id
         }
@@ -107,6 +108,7 @@ async function updateCustomerAddress(
         customerId: toCustomerGid(shopifyCustomerId),
         addressId: shopifyAddressId,
         address: toMailingAddressInput(address),
+        setAsDefault: address.isDefault,
       },
     },
   );

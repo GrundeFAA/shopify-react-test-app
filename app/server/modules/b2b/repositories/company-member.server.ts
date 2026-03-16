@@ -17,19 +17,6 @@ export const companyMemberRepository = {
     });
   },
 
-  async findByCompanyAndCustomer(
-    db: PrismaClient,
-    shop: string,
-    companyId: string,
-    shopifyCustomerId: string,
-  ) {
-    return db.companyMember.findUnique({
-      where: {
-        shop_companyId_shopifyCustomerId: { shop, companyId, shopifyCustomerId },
-      },
-    });
-  },
-
   async create(db: PrismaClient, input: CreateMemberInput) {
     return db.companyMember.create({ data: input });
   },
@@ -45,12 +32,6 @@ export const companyMemberRepository = {
         role: input.role,
         status: input.status,
       },
-    });
-  },
-
-  async countByCompany(db: PrismaClient, shop: string, companyId: string) {
-    return db.companyMember.count({
-      where: { shop, companyId },
     });
   },
 

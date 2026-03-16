@@ -92,8 +92,8 @@ export function AccountTabBoilerplate({
 
   return (
     <section id={`tab-${activeTab}`} className="px-4 pb-4">
-      <h2 className="text-lg font-semibold text-slate-900">{content.title}</h2>
-      <p className="mt-1 text-sm text-slate-600">{content.description}</p>
+      <h2 className="text-lg font-semibold text-neutral-charcoal">{content.title}</h2>
+      <p className="mt-1 text-sm text-neutral-silver">{content.description}</p>
 
       {activeTab === "brukere" ? (
         <div className="mt-4">
@@ -121,7 +121,7 @@ export function AccountTabBoilerplate({
         </div>
       ) : (
         <div className="mt-4">
-          <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
+          <ul className="list-disc space-y-1 pl-5 text-sm text-neutral-charcoal-light">
             {content.bullets.map((item) => (
               <li key={item}>{item}</li>
             ))}

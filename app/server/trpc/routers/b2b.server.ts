@@ -1,87 +1,21 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import type { PrismaClient } from "@prisma/client";
 import { customerSyncService } from "../../modules/b2b/services/customer-sync.server";
 import { dashboardService } from "../../modules/b2b/services/dashboard.server";
 import { companyAddressRepository } from "../../modules/b2b/repositories/company-address.server";
 import { addressSyncService } from "../../modules/b2b/services/address-sync.server";
 import {
+  addressCreateSchema,
+  addressUpdateSchema,
+  getApprovedMembership,
+} from "./shared/b2b-schemas";
+import {
   customerShopContextProcedure,
   createTRPCRouter,
-  publicProcedure,
   shopContextProcedure,
 } from "../init.server";
 
-const addressTypeSchema = z.enum(["BILLING", "SHIPPING"]);
-
-const addressCreateSchema = z.object({
-  type: addressTypeSchema,
-  label: z.string().trim().max(120).optional().nullable(),
-  isDefault: z.boolean().optional(),
-  firstName: z.string().trim().max(120).optional().nullable(),
-  lastName: z.string().trim().max(120).optional().nullable(),
-  company: z.string().trim().max(255).optional().nullable(),
-  address1: z.string().trim().min(1).max(255),
-  address2: z.string().trim().max(255).optional().nullable(),
-  city: z.string().trim().min(1).max(120),
-  province: z.string().trim().max(120).optional().nullable(),
-  zip: z.string().trim().min(1).max(32),
-  country: z.string().trim().min(1).max(120),
-  phone: z.string().trim().max(64).optional().nullable(),
-});
-
-const addressUpdateSchema = z.object({
-  id: z.string().min(1),
-  type: addressTypeSchema.optional(),
-  label: z.string().trim().max(120).optional().nullable(),
-  isDefault: z.boolean().optional(),
-  firstName: z.string().trim().max(120).optional().nullable(),
-  lastName: z.string().trim().max(120).optional().nullable(),
-  company: z.string().trim().max(255).optional().nullable(),
-  address1: z.string().trim().min(1).max(255).optional(),
-  address2: z.string().trim().max(255).optional().nullable(),
-  city: z.string().trim().min(1).max(120).optional(),
-  province: z.string().trim().max(120).optional().nullable(),
-  zip: z.string().trim().min(1).max(32).optional(),
-  country: z.string().trim().min(1).max(120).optional(),
-  phone: z.string().trim().max(64).optional().nullable(),
-});
-
-async function getApprovedMembership(
-  db: PrismaClient,
-  shop: string,
-  shopifyCustomerId: string,
-) {
-  const membership = await db.companyMember.findFirst({
-    where: {
-      shop,
-      shopifyCustomerId,
-      status: "APPROVED",
-    },
-    orderBy: { createdAt: "asc" },
-  });
-
-  if (!membership) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "Approved membership is required",
-    });
-  }
-
-  return membership;
-}
-
 export const b2bRouter = createTRPCRouter({
-  getDashboardForCustomer: publicProcedure
-    .input(z.object({ shop: z.string().min(1), customerId: z.string().min(1) }))
-    .query(async ({ ctx, input }) => {
-      return dashboardService.getForCustomer(
-        ctx.db,
-        input.shop,
-        input.customerId,
-      );
-    }),
-
   getDashboardForContextCustomer: customerShopContextProcedure.query(
     async ({ ctx }) => {
       return dashboardService.getForCustomer(ctx.db, ctx.shop, ctx.customerId);

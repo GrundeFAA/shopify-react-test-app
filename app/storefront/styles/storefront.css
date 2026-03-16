@@ -24,6 +24,7 @@
   --color-semantic-success: #78a938;
   --color-semantic-warning: #f59e0b;
   --color-semantic-error: #cf556b;
+  --color-semantic-error-hover: #b83e55;
   --color-semantic-info: #e6f7ff;
   --color-semantic-info-border: #b3e0ff;
 
@@ -166,56 +167,56 @@
 
 /* Primary — brand red, main CTA */
 :host .btn-primary {
-  background-color: #c4262f;
+  background-color: var(--color-brand-primary);
   color: #ffffff;
-  border-color: #c4262f;
+  border-color: var(--color-brand-primary);
 }
 :host .btn-primary:hover:not(:disabled) {
-  background-color: #9b1e25;
-  border-color: #9b1e25;
+  background-color: var(--color-brand-primary-hover);
+  border-color: var(--color-brand-primary-hover);
 }
 
 /* Secondary — brand navy blue */
 :host .btn-secondary {
-  background-color: #2d4d86;
+  background-color: var(--color-brand-secondary);
   color: #ffffff;
-  border-color: #2d4d86;
+  border-color: var(--color-brand-secondary);
 }
 :host .btn-secondary:hover:not(:disabled) {
-  background-color: #1e3a6b;
-  border-color: #1e3a6b;
+  background-color: var(--color-brand-secondary-hover);
+  border-color: var(--color-brand-secondary-hover);
 }
 
 /* Tertiary — outlined, neutral */
 :host .btn-tertiary {
   background-color: #ffffff;
-  color: #2f2f2f;
-  border-color: #d8d8d8;
+  color: var(--color-neutral-charcoal);
+  border-color: var(--color-neutral-medium-grey);
 }
 :host .btn-tertiary:hover:not(:disabled) {
-  background-color: #f1f3f4;
-  border-color: #828282;
+  background-color: var(--color-neutral-soft-grey);
+  border-color: var(--color-neutral-silver);
 }
 
 /* Tertiary action — outlined in brand secondary blue */
 :host .btn-tertiary-action {
   background-color: #ffffff;
-  color: #2d4d86;
-  border-color: #2d4d86;
+  color: var(--color-brand-secondary);
+  border-color: var(--color-brand-secondary);
 }
 :host .btn-tertiary-action:hover:not(:disabled) {
-  background-color: #e6f7ff;
+  background-color: var(--color-semantic-info);
 }
 
 /* Danger — semantic error red, destructive actions */
 :host .btn-danger {
-  background-color: #cf556b;
+  background-color: var(--color-semantic-error);
   color: #ffffff;
-  border-color: #cf556b;
+  border-color: var(--color-semantic-error);
 }
 :host .btn-danger:hover:not(:disabled) {
-  background-color: #b83e55;
-  border-color: #b83e55;
+  background-color: var(--color-semantic-error-hover);
+  border-color: var(--color-semantic-error-hover);
 }
 
 /* Size modifier — compact for inline/table use */

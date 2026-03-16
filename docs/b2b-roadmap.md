@@ -127,25 +127,26 @@ Customers can create new addresses during Shopify checkout. These are personal a
 
 ## 5. Implementation Status Snapshot
 
-## 5.1 Implemented (Prototype Foundation)
+## 5.1 Implemented (Current Baseline)
 
-- Prisma models for company, membership, membership requests.
+- Prisma models for company, membership, membership requests, company addresses and address-member mappings.
 - Webhook-driven company/member linking from customer creation.
 - First-member auto-admin behavior.
 - Pending-state creation for subsequent members.
 - App proxy dashboard shell with tabs and member rendering.
+- Address CRUD APIs and dashboard UI.
+- Address sync engine (app DB -> Shopify customer addresses via mapping table).
+- Sync trigger on create/update address and new approved member.
 
 ## 5.2 Partially Implemented
 
 - Admin user management UX exists as placeholders.
 - Membership states are available, but approval workflows need full UI/API actions.
 - Webhook parses customer note correctly, but post-processing cleanup (clear note, write `b2b` tag) is not yet implemented.
+- Company orders tab UI exists, but still uses mock rows (real aggregated query/service not wired yet).
 
 ## 5.3 Not Implemented Yet
 
-- `CompanyAddress` and `CompanyAddressMember` Prisma models.
-- Address CRUD APIs and dashboard UI.
-- Address sync engine (app DB -> Shopify customer addresses via mapping table).
 - Aggregated company order query/service.
 - B2B tag write/update logic for theme rendering.
 - Invite flow.
@@ -171,6 +172,8 @@ Core work:
 - Ensure webhook handles note clear + tag idempotently (safe to re-run).
 
 ## Phase 2 - Company Addresses (Core B2B Value)
+
+Status: Implemented in current baseline. Keep this phase as reference for maintenance and future enhancements.
 
 Outcomes:
 

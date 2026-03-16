@@ -20,7 +20,7 @@ export function CompanyUsersTable({ members }: CompanyUsersTableProps) {
   return (
     <div className="space-y-3">
       {notice ? (
-        <div className="rounded-md border border-indigo-200 !bg-indigo-50 px-3 py-2 text-sm !text-indigo-700">
+        <div className="rounded-md border border-semantic-info-border bg-semantic-info px-3 py-2 text-sm text-brand-secondary">
           {notice}
         </div>
       ) : null}

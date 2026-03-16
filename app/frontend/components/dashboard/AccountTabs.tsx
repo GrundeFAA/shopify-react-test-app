@@ -26,13 +26,13 @@ type AccountTabsProps = {
 export function AccountTabs({ activeTab, onTabChange }: AccountTabsProps) {
   return (
     <div>
-      <div className="!grid grid-cols-1 sm:!hidden">
+      <div className="grid grid-cols-1 sm:hidden">
         <select
           name="tab"
           value={activeTab}
           onChange={(event) => onTabChange(event.currentTarget.value as AccountTabId)}
           aria-label="Select a tab"
-          className="col-start-1 row-start-1 w-full appearance-none rounded-md !bg-white py-2 pr-8 pl-3 text-base !text-neutral-charcoal outline-1 -outline-offset-1 outline-neutral-medium-grey focus:outline-2 focus:-outline-offset-2 focus:outline-brand-secondary"
+          className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-2 pr-8 pl-3 text-base text-neutral-charcoal outline-1 -outline-offset-1 outline-neutral-medium-grey focus:outline-2 focus:-outline-offset-2 focus:outline-brand-secondary"
         >
           {tabs.map((tab) => (
             <option key={tab.id} value={tab.id}>
@@ -42,12 +42,12 @@ export function AccountTabs({ activeTab, onTabChange }: AccountTabsProps) {
         </select>
         <ChevronDownIcon
           aria-hidden="true"
-          className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end fill-gray-500"
+          className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end fill-neutral-silver"
         />
       </div>
-      <div className="!hidden sm:!block">
+      <div className="hidden sm:block">
         <div className="border-b border-neutral-medium-grey">
-          <div aria-label="Tabs" className="-mb-px !flex !flex-nowrap gap-8 px-4">
+          <div aria-label="Tabs" className="-mb-px flex flex-nowrap gap-8 px-4">
             {tabs.map((tab) => (
               <button
                 type="button"
@@ -56,17 +56,17 @@ export function AccountTabs({ activeTab, onTabChange }: AccountTabsProps) {
                 aria-current={activeTab === tab.id ? "page" : undefined}
                 className={classNames(
                   activeTab === tab.id
-                    ? "border-brand-secondary !text-brand-secondary"
-                    : "border-transparent !text-neutral-silver hover:border-neutral-medium-grey hover:!text-neutral-charcoal-light",
-                  "group !inline-flex shrink-0 cursor-pointer items-center gap-2 border-b-2 px-1 py-4 text-small font-medium !whitespace-nowrap",
+                    ? "border-brand-secondary text-brand-secondary"
+                    : "border-transparent text-neutral-silver hover:border-neutral-medium-grey hover:text-neutral-charcoal-light",
+                  "group inline-flex shrink-0 cursor-pointer items-center gap-2 border-b-2 px-1 py-4 text-small font-medium whitespace-nowrap",
                 )}
               >
                 <tab.icon
                   aria-hidden="true"
                   className={classNames(
                     activeTab === tab.id
-                      ? "!text-brand-secondary"
-                      : "!text-neutral-silver group-hover:!text-neutral-charcoal-light",
+                      ? "text-brand-secondary"
+                      : "text-neutral-silver group-hover:text-neutral-charcoal-light",
                     "size-5 shrink-0",
                   )}
                 />

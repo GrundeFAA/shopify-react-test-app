@@ -7,12 +7,6 @@ type SyncAddressInput = {
   address: CompanyAddress;
 };
 
-type SyncAddressToMemberInput = {
-  shop: string;
-  companyAddressId: string;
-  shopifyCustomerId: string;
-};
-
 type DeleteAddressInput = {
   shop: string;
   companyAddressId: string;
@@ -238,22 +232,6 @@ export const addressSyncService = {
         shopifyCustomerId,
       });
     }
-  },
-
-  async syncAllCompanyAddressesToApprovedMember(
-    db: PrismaClient,
-    input: SyncAddressToMemberInput,
-  ) {
-    const address = await db.companyAddress.findUnique({
-      where: { id: input.companyAddressId },
-    });
-    if (!address) return;
-
-    await upsertAddressForMember(db, {
-      shop: input.shop,
-      address,
-      shopifyCustomerId: input.shopifyCustomerId,
-    });
   },
 
   async syncAllCompanyAddressesToMember(

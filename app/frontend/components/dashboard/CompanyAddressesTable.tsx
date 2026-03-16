@@ -64,7 +64,7 @@ function AddressForm({
 
   return (
     <form
-      className="space-y-3 rounded-md border border-slate-200 !bg-slate-50 p-4"
+      className="space-y-3 rounded-md border border-neutral-medium-grey bg-neutral-off-white p-4"
       onSubmit={async (event) => {
         event.preventDefault();
         const form = event.currentTarget;
@@ -74,12 +74,12 @@ function AddressForm({
       {isEditing ? <input type="hidden" name="id" value={address.id} /> : null}
 
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="flex flex-col gap-1 text-sm text-slate-700">
+        <label className="flex flex-col gap-1 text-sm text-neutral-charcoal-light">
           Type
           <select
             name="type"
             defaultValue={address?.type ?? "SHIPPING"}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="rounded-md border border-neutral-medium-grey px-3 py-2"
             required
           >
             <option value="SHIPPING">Levering</option>
@@ -87,116 +87,116 @@ function AddressForm({
           </select>
         </label>
 
-        <label className="flex flex-col gap-1 text-sm text-slate-700">
+        <label className="flex flex-col gap-1 text-sm text-neutral-charcoal-light">
           Navn / etikett
           <input
             name="label"
             defaultValue={address?.label ?? ""}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="rounded-md border border-neutral-medium-grey px-3 py-2"
             placeholder="Eks: Hovedlager"
           />
         </label>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="flex flex-col gap-1 text-sm text-slate-700">
+        <label className="flex flex-col gap-1 text-sm text-neutral-charcoal-light">
           Fornavn
           <input
             name="firstName"
             defaultValue={address?.firstName ?? ""}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="rounded-md border border-neutral-medium-grey px-3 py-2"
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm text-slate-700">
+        <label className="flex flex-col gap-1 text-sm text-neutral-charcoal-light">
           Etternavn
           <input
             name="lastName"
             defaultValue={address?.lastName ?? ""}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="rounded-md border border-neutral-medium-grey px-3 py-2"
           />
         </label>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="flex flex-col gap-1 text-sm text-slate-700">
+        <label className="flex flex-col gap-1 text-sm text-neutral-charcoal-light">
           Firma
           <input
             name="company"
             defaultValue={address?.company ?? ""}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="rounded-md border border-neutral-medium-grey px-3 py-2"
           />
         </label>
-        <label className="flex items-center gap-2 pt-6 text-sm text-slate-700">
+        <label className="flex items-center gap-2 pt-6 text-sm text-neutral-charcoal-light">
           <input type="checkbox" name="isDefault" defaultChecked={address?.isDefault ?? false} />
           Standardadresse
         </label>
       </div>
 
       <div className="grid gap-3">
-        <label className="flex flex-col gap-1 text-sm text-slate-700">
+        <label className="flex flex-col gap-1 text-sm text-neutral-charcoal-light">
           Adresse 1
           <input
             name="address1"
             defaultValue={address?.address1 ?? ""}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="rounded-md border border-neutral-medium-grey px-3 py-2"
             required
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm text-slate-700">
+        <label className="flex flex-col gap-1 text-sm text-neutral-charcoal-light">
           Adresse 2
           <input
             name="address2"
             defaultValue={address?.address2 ?? ""}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="rounded-md border border-neutral-medium-grey px-3 py-2"
           />
         </label>
       </div>
 
       <div className="grid gap-3 md:grid-cols-4">
-        <label className="flex flex-col gap-1 text-sm text-slate-700 md:col-span-2">
+        <label className="flex flex-col gap-1 text-sm text-neutral-charcoal-light md:col-span-2">
           By
           <input
             name="city"
             defaultValue={address?.city ?? ""}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="rounded-md border border-neutral-medium-grey px-3 py-2"
             required
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm text-slate-700">
+        <label className="flex flex-col gap-1 text-sm text-neutral-charcoal-light">
           Postnummer
           <input
             name="zip"
             defaultValue={address?.zip ?? ""}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="rounded-md border border-neutral-medium-grey px-3 py-2"
             required
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm text-slate-700">
+        <label className="flex flex-col gap-1 text-sm text-neutral-charcoal-light">
           Fylke
           <input
             name="province"
             defaultValue={address?.province ?? ""}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="rounded-md border border-neutral-medium-grey px-3 py-2"
           />
         </label>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="flex flex-col gap-1 text-sm text-slate-700">
+        <label className="flex flex-col gap-1 text-sm text-neutral-charcoal-light">
           Land
           <input
             name="country"
             defaultValue={address?.country ?? "Norway"}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="rounded-md border border-neutral-medium-grey px-3 py-2"
             required
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm text-slate-700">
+        <label className="flex flex-col gap-1 text-sm text-neutral-charcoal-light">
           Telefon
           <input
             name="phone"
             defaultValue={address?.phone ?? ""}
-            className="rounded-md border border-slate-300 px-3 py-2"
+            className="rounded-md border border-neutral-medium-grey px-3 py-2"
           />
         </label>
       </div>
@@ -244,7 +244,7 @@ export function CompanyAddressesTable({
   return (
     <div className="space-y-3">
       {actionError ? (
-        <div className="rounded-md border border-rose-200 !bg-rose-50 px-4 py-3 text-sm !text-rose-700">
+        <div className="rounded-md border border-semantic-error bg-neutral-off-white px-4 py-3 text-sm text-semantic-error">
           <strong>Feil:</strong> {actionError}
         </div>
       ) : null}

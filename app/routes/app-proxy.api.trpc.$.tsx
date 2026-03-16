@@ -61,6 +61,8 @@ async function handleAppProxyTrpcRequest(request: Request) {
   const debugContext = {
     path: url.pathname,
     queryKeys,
+    shopParam: url.searchParams.get("shop"),
+    pathPrefixParam: url.searchParams.get("path_prefix"),
     hasSignature: url.searchParams.has("signature"),
     hasHmac: url.searchParams.has("hmac"),
     hasShop: url.searchParams.has("shop"),

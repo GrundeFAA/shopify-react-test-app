@@ -42,7 +42,7 @@ async function createCustomerAddress(
     `#graphql
     mutation CustomerAddressCreate($customerId: ID!, $address: MailingAddressInput!) {
       customerAddressCreate(customerId: $customerId, address: $address) {
-        customerAddress {
+        address {
           id
         }
         userErrors {
@@ -62,7 +62,7 @@ async function createCustomerAddress(
   const payload = (await response.json()) as {
     data?: {
       customerAddressCreate?: {
-        customerAddress?: { id?: string | null } | null;
+        address?: { id?: string | null } | null;
         userErrors?: Array<{ message?: string | null } | null> | null;
       } | null;
     };
@@ -74,7 +74,7 @@ async function createCustomerAddress(
     throw new Error(firstError);
   }
 
-  const id = payload.data?.customerAddressCreate?.customerAddress?.id;
+  const id = payload.data?.customerAddressCreate?.address?.id;
   if (!id) {
     throw new Error("Shopify did not return customerAddress.id");
   }
@@ -92,8 +92,8 @@ async function updateCustomerAddress(
   const response = await admin.graphql(
     `#graphql
     mutation CustomerAddressUpdate($customerId: ID!, $addressId: ID!, $address: MailingAddressInput!) {
-      customerAddressUpdate(customerId: $customerId, id: $addressId, address: $address) {
-        customerAddress {
+      customerAddressUpdate(customerId: $customerId, addressId: $addressId, address: $address) {
+        address {
           id
         }
         userErrors {
@@ -114,6 +114,7 @@ async function updateCustomerAddress(
   const payload = (await response.json()) as {
     data?: {
       customerAddressUpdate?: {
+        address?: { id?: string | null } | null;
         userErrors?: Array<{ message?: string | null } | null> | null;
       } | null;
     };
@@ -135,7 +136,7 @@ async function deleteCustomerAddress(
   const response = await admin.graphql(
     `#graphql
     mutation CustomerAddressDelete($customerId: ID!, $addressId: ID!) {
-      customerAddressDelete(customerId: $customerId, id: $addressId) {
+      customerAddressDelete(customerId: $customerId, addressId: $addressId) {
         deletedAddressId
         userErrors {
           field

@@ -1,0 +1,60 @@
+---
+description: Enforces zero-drift between the app database and Shopify when writing B2B data
+globs: app/server/**/*.ts
+alwaysApply: false
+---
+
+# Shopify ↔ DB Sync Invariant
+
+**Drift between the app database and Shopify is never acceptable.** Every mutation that writes to both must guarantee they stay in sync — either both succeed, or neither persists.
+
+## Rule: DB-first with mandatory rollback on Shopify failure
+
+Write to the DB first, then sync to Shopify. If the Shopify call fails, roll back the DB write before re-throwing.
+
+```typescript
+// ✅ CORRECT — create with rollback
+const record = await repository.create(db, input);
+try {
+  await shopifySyncService.sync(...);
+} catch (syncError) {
+  await repository.delete(db, record.id).catch((e) =>
+    console.error("Rollback failed", { id: record.id, error: e }),
+  );
+  throw syncError;
+}
+
+// ✅ CORRECT — update with rollback
+const previous = await repository.findById(db, id);
+const updated = await repository.update(db, id, input);
+try {
+  await shopifySyncService.sync(...);
+} catch (syncError) {
+  await repository.update(db, id, previous).catch((e) =>
+    console.error("Rollback failed", { id, error: e }),
+  );
+  throw syncError;
+}
+
+// ❌ WRONG — no rollback, leaves DB and Shopify out of sync
+const record = await repository.create(db, input);
+await shopifySyncService.sync(...); // if this throws, DB has the record but Shopify doesn't
+```
+
+## Rule: Delete is Shopify-first
+
+For deletes, call Shopify first. If Shopify fails, abort — do not delete from DB. This prevents orphaned Shopify records with no DB mapping.
+
+```typescript
+// ✅ CORRECT
+await shopifySyncService.deleteFromShopify(...); // throws → DB untouched
+await repository.delete(db, id);
+```
+
+## Rule: Validate all Shopify GraphQL mutations
+
+Any GraphQL mutation sent to Shopify **must be validated** with the `validate_graphql` MCP tool before merging. Wrong field names on payloads or arguments silently succeed at the HTTP level but return no data, causing undetectable sync failures.
+
+Common mistakes:
+- Payload field names change between API versions (e.g. `customerAddress` vs `address`)
+- Argument names differ from what you expect (e.g. `id` vs `addressId`)

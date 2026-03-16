@@ -52,11 +52,22 @@ const b2bProxyRouter = createTRPCRouter({
         phone: input.phone ?? null,
       });
 
-      await addressSyncService.syncAddressForApprovedMembers(ctx.db, {
-        shop: ctx.shop,
-        companyId: membership.companyId,
-        address,
-      });
+      try {
+        await addressSyncService.syncAddressForApprovedMembers(ctx.db, {
+          shop: ctx.shop,
+          companyId: membership.companyId,
+          address,
+        });
+      } catch (syncError) {
+        await companyAddressRepository.delete(ctx.db, address.id).catch(
+          (deleteError) =>
+            console.error("Failed to roll back address after sync failure", {
+              addressId: address.id,
+              deleteError,
+            }),
+        );
+        throw syncError;
+      }
 
       return address;
     }),

@@ -5,10 +5,17 @@ import {
   HomeIcon,
   UserIcon,
   UsersIcon,
+  WrenchScrewdriverIcon,
 } from "@heroicons/react/20/solid";
 import { classNames } from "../../utils/classNames";
 
-export type AccountTabId = "min-konto" | "selskap" | "brukere" | "adresser" | "ordrer";
+export type AccountTabId =
+  | "min-konto"
+  | "selskap"
+  | "brukere"
+  | "adresser"
+  | "ordrer"
+  | "diagnostikk";
 
 const tabs = [
   { id: "min-konto", name: "Min konto", icon: UserIcon },
@@ -16,6 +23,7 @@ const tabs = [
   { id: "brukere", name: "Brukere", icon: UsersIcon },
   { id: "adresser", name: "Adresser", icon: HomeIcon },
   { id: "ordrer", name: "Ordrer", icon: ArchiveBoxIcon },
+  { id: "diagnostikk", name: "Diagnostikk", icon: WrenchScrewdriverIcon },
 ] as const;
 
 type AccountTabsProps = {

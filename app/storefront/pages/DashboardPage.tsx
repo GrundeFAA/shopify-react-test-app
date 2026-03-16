@@ -18,6 +18,7 @@ const validTabs: AccountTabId[] = [
   "brukere",
   "adresser",
   "ordrer",
+  "diagnostikk",
 ];
 
 function parseTabFromUrl(): AccountTabId {
@@ -180,6 +181,13 @@ export function DashboardPage() {
   };
 
   const dashboard = dashboardQuery.data;
+  const urlContext = useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      shop: params.get("shop"),
+      loggedInCustomerId: params.get("logged_in_customer_id"),
+    };
+  }, []);
 
   const companyName = useMemo(() => {
     if (!dashboard) return null;
@@ -205,6 +213,9 @@ export function DashboardPage() {
 
   const customerName =
     dashboard?.currentCustomer?.fullName ?? dashboard?.currentCustomer?.email ?? null;
+  const customerDisplayLabel = customerName || (urlContext.loggedInCustomerId
+    ? `Kunde ${urlContext.loggedInCustomerId}`
+    : "Ukjent bruker");
 
   if (dashboardQuery.isLoading) {
     return (
@@ -239,7 +250,7 @@ export function DashboardPage() {
         <p className="mt-1 text-small !text-neutral-charcoal-light">
           Innlogget som:{" "}
           <span className="font-medium !text-neutral-charcoal">
-            {customerName || "Ukjent bruker"}
+            {customerDisplayLabel}
           </span>
         </p>
         {dashboard?.state === "PENDING_OR_MISSING" ? (
@@ -266,6 +277,17 @@ export function DashboardPage() {
             onCreateAddress={onCreateAddress}
             onUpdateAddress={onUpdateAddress}
             onDeleteAddress={onDeleteAddress}
+            diagnostics={{
+              shop: urlContext.shop,
+              loggedInCustomerId: urlContext.loggedInCustomerId,
+              currentCustomerName: dashboard?.currentCustomer?.fullName ?? null,
+              currentCustomerEmail: dashboard?.currentCustomer?.email ?? null,
+              isFetching: dashboardQuery.isFetching,
+              onRefresh: () => {
+                void refreshDashboard();
+              },
+              dashboardPayload: dashboard ?? null,
+            }}
           />
         </section>
 

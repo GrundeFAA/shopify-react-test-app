@@ -140,6 +140,8 @@ const b2bProxyRouter = createTRPCRouter({
         });
       }
 
+      console.log("[updateCompanyAddress] input.isDefault:", input.isDefault, "existing.isDefault:", existing.isDefault);
+
       if (input.isDefault === false && existing.isDefault) {
         throw new TRPCError({
           code: "BAD_REQUEST",
@@ -194,6 +196,8 @@ const b2bProxyRouter = createTRPCRouter({
           },
         });
       });
+
+      console.log("[updateCompanyAddress] DB updated. updatedAddress.isDefault:", updatedAddress.isDefault);
 
       try {
         await addressSyncService.syncAddressForApprovedMembers(ctx.db, {

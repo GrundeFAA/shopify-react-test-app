@@ -37,6 +37,7 @@ type AddressFormProps = {
   submitLabel: string;
   address?: CompanyAddressRow | null;
   isSubmitting: boolean;
+  errorMessage?: string | null;
   onCancel: () => void;
   onSubmit: (formData: FormData) => Promise<void>;
 };
@@ -58,6 +59,7 @@ function AddressForm({
   submitLabel,
   address,
   isSubmitting,
+  errorMessage,
   onCancel,
   onSubmit,
 }: AddressFormProps) {
@@ -72,6 +74,12 @@ function AddressForm({
         await onSubmit(new FormData(form));
       }}
     >
+      {errorMessage ? (
+        <div className="rounded-md border border-semantic-error bg-neutral-off-white px-4 py-3 text-sm text-semantic-error">
+          <strong>Feil:</strong> {errorMessage}
+        </div>
+      ) : null}
+
       {isEditing ? <input type="hidden" name="id" value={address.id} /> : null}
 
       <div className="grid gap-3 md:grid-cols-2">
@@ -246,12 +254,6 @@ export function CompanyAddressesTable({
 
   return (
     <div className="space-y-3">
-      {actionError ? (
-        <div className="rounded-md border border-semantic-error bg-neutral-off-white px-4 py-3 text-sm text-semantic-error">
-          <strong>Feil:</strong> {actionError}
-        </div>
-      ) : null}
-
       <Modal
         isOpen={isCreateModalOpen}
         title="Opprett adresse"
@@ -263,6 +265,7 @@ export function CompanyAddressesTable({
           mode="create"
           submitLabel="Opprett adresse"
           isSubmitting={isSubmitting}
+          errorMessage={actionError}
           onCancel={onCancelForm}
           onSubmit={onCreateAddress}
         />
@@ -281,6 +284,7 @@ export function CompanyAddressesTable({
             address={editingAddress}
             submitLabel="Lagre endringer"
             isSubmitting={isSubmitting}
+            errorMessage={actionError}
             onCancel={onCancelForm}
             onSubmit={async (formData) => onUpdateAddress(editingAddress.id, formData)}
           />

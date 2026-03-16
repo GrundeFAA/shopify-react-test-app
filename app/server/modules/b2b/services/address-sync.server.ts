@@ -145,11 +145,6 @@ async function updateCustomerAddress(
   if (firstError) {
     throw new Error(firstError);
   }
-
-  const id = payload.data?.customerAddressUpdate?.address?.id;
-  if (!id) {
-    throw new Error("Shopify did not return customerAddressUpdate.address.id");
-  }
 }
 
 async function deleteCustomerAddress(

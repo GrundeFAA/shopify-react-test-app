@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
-import { StyleBaselinePage } from "./pages/StyleBaselinePage";
+import { DashboardPage } from "./pages/DashboardPage";
 import { createTrpcClient, trpc } from "./trpc";
 
 type StorefrontAppProps = {
@@ -29,7 +29,7 @@ export function StorefrontApp({ proxyBase }: StorefrontAppProps) {
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <StyleBaselinePage />
+        <DashboardPage />
       </QueryClientProvider>
     </trpc.Provider>
   );

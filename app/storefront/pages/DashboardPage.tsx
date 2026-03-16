@@ -18,7 +18,6 @@ const validTabs: AccountTabId[] = [
   "brukere",
   "adresser",
   "ordrer",
-  "diagnostikk",
 ];
 
 function parseTabFromUrl(): AccountTabId {
@@ -181,13 +180,6 @@ export function DashboardPage() {
   };
 
   const dashboard = dashboardQuery.data;
-  const urlContext = useMemo(() => {
-    const params = new URLSearchParams(window.location.search);
-    return {
-      shop: params.get("shop"),
-      loggedInCustomerId: params.get("logged_in_customer_id"),
-    };
-  }, []);
 
   const companyName = useMemo(() => {
     if (!dashboard) return null;
@@ -213,8 +205,8 @@ export function DashboardPage() {
 
   const customerName =
     dashboard?.currentCustomer?.fullName ?? dashboard?.currentCustomer?.email ?? null;
-  const customerDisplayLabel = customerName || (urlContext.loggedInCustomerId
-    ? `Kunde ${urlContext.loggedInCustomerId}`
+  const customerDisplayLabel = customerName || (dashboard?.currentCustomer?.shopifyCustomerId
+    ? `Kunde ${dashboard.currentCustomer.shopifyCustomerId}`
     : "Ukjent bruker");
 
   if (dashboardQuery.isLoading) {
@@ -277,17 +269,6 @@ export function DashboardPage() {
             onCreateAddress={onCreateAddress}
             onUpdateAddress={onUpdateAddress}
             onDeleteAddress={onDeleteAddress}
-            diagnostics={{
-              shop: urlContext.shop,
-              loggedInCustomerId: urlContext.loggedInCustomerId,
-              currentCustomerName: dashboard?.currentCustomer?.fullName ?? null,
-              currentCustomerEmail: dashboard?.currentCustomer?.email ?? null,
-              isFetching: dashboardQuery.isFetching,
-              onRefresh: () => {
-                void refreshDashboard();
-              },
-              dashboardPayload: dashboard ?? null,
-            }}
           />
         </section>
 

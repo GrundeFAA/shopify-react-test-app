@@ -4,112 +4,16 @@ import { createTrpcContext } from "../server/trpc/context.server";
 import { authenticate } from "../server/shopify.server";
 import { b2bHttpRouter } from "../server/trpc/routers/b2b-http.server";
 
-async function toErrorDetails(error: unknown) {
-  if (error instanceof Response) {
-    let bodyPreview: string | null = null;
-    try {
-      const text = await error.clone().text();
-      bodyPreview = text.slice(0, 500) || null;
-    } catch {
-      bodyPreview = null;
-    }
-
-    return {
-      type: "Response",
-      message: null,
-      status: error.status,
-      statusText: error.statusText,
-      location: error.headers.get("location"),
-      bodyPreview,
-    };
-  }
-
-  if (error instanceof Error) {
-    return {
-      type: error.constructor.name,
-      message: error.message,
-      stack: error.stack,
-    };
-  }
-
-  if (typeof error === "object" && error !== null) {
-    const record = error as Record<string, unknown>;
-    return {
-      type: record.constructor && typeof record.constructor === "function"
-        ? (record.constructor as { name?: string }).name ?? "object"
-        : "object",
-      message:
-        typeof record.message === "string"
-          ? record.message
-          : typeof record.error === "string"
-            ? record.error
-            : null,
-      keys: Object.keys(record),
-      raw: record,
-    };
-  }
-
-  return {
-    type: typeof error,
-    message: String(error),
-  };
-}
-
 async function handleAppProxyTrpcRequest(request: Request) {
+  await authenticate.public.appProxy(request);
+
   const url = new URL(request.url);
-  const queryKeys = [...new Set(url.searchParams.keys())];
-  const debugContext = {
-    path: url.pathname,
-    queryKeys,
-    shopParam: url.searchParams.get("shop"),
-    pathPrefixParam: url.searchParams.get("path_prefix"),
-    hasSignature: url.searchParams.has("signature"),
-    hasHmac: url.searchParams.has("hmac"),
-    hasShop: url.searchParams.has("shop"),
-    hasLoggedInCustomerId: url.searchParams.has("logged_in_customer_id"),
-  };
-
-  try {
-    await authenticate.public.appProxy(request);
-  } catch (error) {
-    const errorDetails = await toErrorDetails(error);
-    console.error("App proxy authentication failed for tRPC request", {
-      ...debugContext,
-      error: errorDetails,
-    });
-
-    return Response.json(
-      {
-        ok: false,
-        error: "app_proxy_auth_failed",
-        message: errorDetails.message ?? "Unknown auth error",
-        errorType: errorDetails.type,
-        errorKeys: "keys" in errorDetails ? errorDetails.keys : undefined,
-        responseStatus: "status" in errorDetails ? errorDetails.status : undefined,
-        responseStatusText: "statusText" in errorDetails ? errorDetails.statusText : undefined,
-        responseLocation: "location" in errorDetails ? errorDetails.location : undefined,
-        responseBodyPreview: "bodyPreview" in errorDetails ? errorDetails.bodyPreview : undefined,
-        debug: debugContext,
-      },
-      { status: 400 },
-    );
-  }
-
   const shop = url.searchParams.get("shop") ?? request.headers.get("x-shopify-shop-domain");
   const customerId = url.searchParams.get("logged_in_customer_id");
 
   if (!shop || !customerId) {
     return Response.json(
-      {
-        ok: false,
-        error: "missing_proxy_context",
-        message: "Customer and shop context are required.",
-        debug: {
-          ...debugContext,
-          resolvedShop: shop,
-          resolvedCustomerId: customerId,
-        },
-      },
+      { ok: false, error: "Customer and shop context are required." },
       { status: 401 },
     );
   }

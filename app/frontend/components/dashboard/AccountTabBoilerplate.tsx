@@ -2,7 +2,6 @@ import type { AccountTabId } from "./AccountTabs";
 import { CompanyAddressesTable, type CompanyAddressRow } from "./CompanyAddressesTable";
 import { CompanyUsersTable, type CompanyScopedMember } from "./CompanyUsersTable";
 import { CompanyOrdersTable } from "./CompanyOrdersTable";
-import { DiagnosticsPanel } from "./DiagnosticsPanel";
 
 type AccountTabBoilerplateProps = {
   activeTab: AccountTabId;
@@ -18,15 +17,6 @@ type AccountTabBoilerplateProps = {
   onCreateAddress: (formData: FormData) => Promise<void>;
   onUpdateAddress: (addressId: string, formData: FormData) => Promise<void>;
   onDeleteAddress: (addressId: string) => Promise<void>;
-  diagnostics: {
-    shop: string | null;
-    loggedInCustomerId: string | null;
-    currentCustomerName: string | null;
-    currentCustomerEmail: string | null;
-    isFetching: boolean;
-    onRefresh: () => void;
-    dashboardPayload: unknown;
-  };
 };
 
 type BoilerplateContent = {
@@ -81,11 +71,6 @@ const contentByTab: Record<AccountTabId, BoilerplateContent> = {
       "Bestill pa nytt fra historikk",
     ],
   },
-  diagnostikk: {
-    title: "Diagnostikk",
-    description: "Bruk denne fanen for live feilsøking av identitets- og enrich-flow.",
-    bullets: [],
-  },
 };
 
 export function AccountTabBoilerplate({
@@ -102,7 +87,6 @@ export function AccountTabBoilerplate({
   onCreateAddress,
   onUpdateAddress,
   onDeleteAddress,
-  diagnostics,
 }: AccountTabBoilerplateProps) {
   const content = contentByTab[activeTab];
 
@@ -135,17 +119,6 @@ export function AccountTabBoilerplate({
         <div className="mt-4">
           <CompanyOrdersTable />
         </div>
-      ) : activeTab === "diagnostikk" ? (
-        <DiagnosticsPanel
-          shop={diagnostics.shop}
-          loggedInCustomerId={diagnostics.loggedInCustomerId}
-          currentCustomerName={diagnostics.currentCustomerName}
-          currentCustomerEmail={diagnostics.currentCustomerEmail}
-          members={companyMembers}
-          isFetching={diagnostics.isFetching}
-          onRefresh={diagnostics.onRefresh}
-          dashboardPayload={diagnostics.dashboardPayload}
-        />
       ) : (
         <div className="mt-4">
           <ul className="list-disc space-y-1 pl-5 text-sm text-neutral-charcoal-light">

@@ -20,12 +20,12 @@ api_version = "2026-04"
   uri = "/webhooks/customers/update"
 
 [access_scopes]
-scopes = "read_customers,write_customers"
+scopes = "read_customers,write_customers,write_app_proxy"
 
 [auth]
 redirect_urls = [
-  "https://shopify-react-test-app-production.up.railway.app/api/auth",
-  "http://localhost:3000/callback"
+  "https://shopify-react-test-app-production.up.railway.app/auth/callback",
+  "http://localhost:3000/auth/callback"
 ]
 
 [app_proxy]

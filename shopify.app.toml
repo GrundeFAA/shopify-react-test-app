@@ -20,7 +20,6 @@ api_version = "2026-04"
   uri = "/webhooks/customers/update"
 
 [access_scopes]
-# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "read_customers,write_customers"
 
 [auth]

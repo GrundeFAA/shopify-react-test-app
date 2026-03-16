@@ -140,10 +140,15 @@ const b2bProxyRouter = createTRPCRouter({
         });
       }
 
-      const normalizedIsDefault =
-        input.isDefault === false && existing.isDefault
-          ? true
-          : (input.isDefault ?? existing.isDefault);
+      if (input.isDefault === false && existing.isDefault) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            "Du kan ikke fjerne standardadresse direkte. Sett en annen adresse som standard først.",
+        });
+      }
+
+      const normalizedIsDefault = input.isDefault ?? existing.isDefault;
       const shouldSetDefault = normalizedIsDefault;
       const previousDefaultIds = shouldSetDefault
         ? (

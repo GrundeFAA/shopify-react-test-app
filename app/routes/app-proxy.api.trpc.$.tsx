@@ -4,6 +4,38 @@ import { createTrpcContext } from "../server/trpc/context.server";
 import { authenticate } from "../server/shopify.server";
 import { b2bHttpRouter } from "../server/trpc/routers/b2b-http.server";
 
+function toErrorDetails(error: unknown) {
+  if (error instanceof Error) {
+    return {
+      type: error.constructor.name,
+      message: error.message,
+      stack: error.stack,
+    };
+  }
+
+  if (typeof error === "object" && error !== null) {
+    const record = error as Record<string, unknown>;
+    return {
+      type: record.constructor && typeof record.constructor === "function"
+        ? (record.constructor as { name?: string }).name ?? "object"
+        : "object",
+      message:
+        typeof record.message === "string"
+          ? record.message
+          : typeof record.error === "string"
+            ? record.error
+            : null,
+      keys: Object.keys(record),
+      raw: record,
+    };
+  }
+
+  return {
+    type: typeof error,
+    message: String(error),
+  };
+}
+
 async function handleAppProxyTrpcRequest(request: Request) {
   const url = new URL(request.url);
   const queryKeys = [...new Set(url.searchParams.keys())];
@@ -19,16 +51,19 @@ async function handleAppProxyTrpcRequest(request: Request) {
   try {
     await authenticate.public.appProxy(request);
   } catch (error) {
+    const errorDetails = toErrorDetails(error);
     console.error("App proxy authentication failed for tRPC request", {
       ...debugContext,
-      error,
+      error: errorDetails,
     });
 
     return Response.json(
       {
         ok: false,
         error: "app_proxy_auth_failed",
-        message: error instanceof Error ? error.message : "Unknown auth error",
+        message: errorDetails.message ?? "Unknown auth error",
+        errorType: errorDetails.type,
+        errorKeys: "keys" in errorDetails ? errorDetails.keys : undefined,
         debug: debugContext,
       },
       { status: 400 },

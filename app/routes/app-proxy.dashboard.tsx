@@ -57,8 +57,12 @@ export default function AppProxyDashboard() {
 
   return (
     <main className="min-h-screen bg-slate-50 p-6 text-slate-900">
-      <div id="rt-b2b-root" data-proxy-base={proxyBase} data-customer-id={customerId} />
-      <link rel="stylesheet" href={storefrontStyleUrl} />
+      <div
+        id="rt-b2b-root"
+        data-proxy-base={proxyBase}
+        data-customer-id={customerId}
+        data-storefront-style-url={storefrontStyleUrl}
+      />
       <script src={storefrontScriptUrl} defer />
     </main>
   );

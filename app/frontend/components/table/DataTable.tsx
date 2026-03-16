@@ -59,9 +59,9 @@ export function DataTable<Row>({
       </div>
 
       <div className="mt-8 flow-root">
-        <div className="-mx-4 -my-2 !overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="!inline-block !min-w-full py-2 align-middle sm:px-6 lg:px-8">
-            <table className="relative !min-w-full divide-y divide-gray-300" style={{ borderCollapse: "collapse", tableLayout: "auto", width: "100%" }}>
+        <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+            <table className="relative min-w-full divide-y divide-gray-300">
               <thead>
                 <tr>
                   {columns.map((column, index) => (
@@ -97,23 +97,22 @@ export function DataTable<Row>({
                   </tr>
                 ) : (
                   rows.map((row) => (
-                    <tr key={getRowId(row)} style={{ display: "table-row" }}>
+                    <tr key={getRowId(row)}>
                       {columns.map((column, index) => (
                         <td
                           key={column.key}
-                          style={{ display: "table-cell", verticalAlign: "middle" }}
                           className={
                             column.cellClassName ??
                             (index === 0
-                              ? "py-4 pr-3 pl-4 text-sm font-medium !whitespace-nowrap text-gray-900 sm:pl-0"
-                              : "px-3 py-4 text-sm !whitespace-nowrap text-gray-500")
+                              ? "py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 sm:pl-0"
+                              : "px-3 py-4 text-sm whitespace-nowrap text-gray-500")
                           }
                         >
                           {column.render(row)}
                         </td>
                       ))}
                       {rowAction ? (
-                        <td style={{ display: "table-cell", verticalAlign: "middle" }} className="py-4 pr-4 pl-3 text-right text-sm font-medium !whitespace-nowrap sm:pr-0">
+                        <td className="py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0">
                           <button
                             type="button"
                             onClick={() => rowAction.onClick?.(row)}

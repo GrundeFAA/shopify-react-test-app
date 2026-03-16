@@ -46,42 +46,29 @@ export function AccountTabs({ activeTab, onTabChange }: AccountTabsProps) {
         />
       </div>
       <div className="!hidden sm:!block">
-        {/* Use inline style on the border wrapper — inline styles are not overridable by theme CSS */}
-        <div style={{ borderBottom: "1px solid #d8d8d8" }}>
-          {/* Inline style on the flex row guarantees display:flex regardless of any theme nav/ul rules */}
-          <div
-            role="tablist"
-            aria-label="Tabs"
-            style={{ display: "flex", flexWrap: "nowrap", marginBottom: "-1px", paddingLeft: "1rem", paddingRight: "1rem", gap: "2rem" }}
-          >
+        <div className="border-b border-neutral-medium-grey">
+          <div aria-label="Tabs" className="-mb-px !flex !flex-nowrap gap-8 px-4">
             {tabs.map((tab) => (
               <button
-                role="tab"
                 type="button"
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                aria-selected={activeTab === tab.id}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  flexShrink: 0,
-                  whiteSpace: "nowrap",
-                  borderBottom: activeTab === tab.id ? "2px solid #2d4d86" : "2px solid transparent",
-                  color: activeTab === tab.id ? "#2d4d86" : "#828282",
-                  paddingTop: "1rem",
-                  paddingBottom: "1rem",
-                  paddingLeft: "0.25rem",
-                  paddingRight: "0.25rem",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  cursor: "pointer",
-                  background: "transparent",
-                  gap: "0.5rem",
-                }}
+                aria-current={activeTab === tab.id ? "page" : undefined}
+                className={classNames(
+                  activeTab === tab.id
+                    ? "border-brand-secondary !text-brand-secondary"
+                    : "border-transparent !text-neutral-silver hover:border-neutral-medium-grey hover:!text-neutral-charcoal-light",
+                  "group !inline-flex shrink-0 cursor-pointer items-center gap-2 border-b-2 px-1 py-4 text-small font-medium !whitespace-nowrap",
+                )}
               >
                 <tab.icon
                   aria-hidden="true"
-                  style={{ width: "1.25rem", height: "1.25rem", flexShrink: 0 }}
+                  className={classNames(
+                    activeTab === tab.id
+                      ? "!text-brand-secondary"
+                      : "!text-neutral-silver group-hover:!text-neutral-charcoal-light",
+                    "size-5 shrink-0",
+                  )}
                 />
                 <span>{tab.name}</span>
               </button>

@@ -32,6 +32,12 @@ function toMailingAddressInput(address: CompanyAddress) {
   };
 }
 
+function toFirstGraphqlErrorMessage(payload: {
+  errors?: Array<{ message?: string | null } | null>;
+}): string | null {
+  return payload.errors?.find((error) => error?.message)?.message ?? null;
+}
+
 async function createCustomerAddress(
   shop: string,
   shopifyCustomerId: string,
@@ -61,6 +67,7 @@ async function createCustomerAddress(
   );
 
   const payload = (await response.json()) as {
+    errors?: Array<{ message?: string | null } | null>;
     data?: {
       customerAddressCreate?: {
         address?: { id?: string | null } | null;
@@ -68,6 +75,11 @@ async function createCustomerAddress(
       } | null;
     };
   };
+
+  const graphqlError = toFirstGraphqlErrorMessage(payload);
+  if (graphqlError) {
+    throw new Error(graphqlError);
+  }
 
   const userErrors = payload.data?.customerAddressCreate?.userErrors ?? [];
   const firstError = userErrors.find((error) => error?.message)?.message;
@@ -114,6 +126,7 @@ async function updateCustomerAddress(
   );
 
   const payload = (await response.json()) as {
+    errors?: Array<{ message?: string | null } | null>;
     data?: {
       customerAddressUpdate?: {
         address?: { id?: string | null } | null;
@@ -122,10 +135,20 @@ async function updateCustomerAddress(
     };
   };
 
+  const graphqlError = toFirstGraphqlErrorMessage(payload);
+  if (graphqlError) {
+    throw new Error(graphqlError);
+  }
+
   const userErrors = payload.data?.customerAddressUpdate?.userErrors ?? [];
   const firstError = userErrors.find((error) => error?.message)?.message;
   if (firstError) {
     throw new Error(firstError);
+  }
+
+  const id = payload.data?.customerAddressUpdate?.address?.id;
+  if (!id) {
+    throw new Error("Shopify did not return customerAddressUpdate.address.id");
   }
 }
 
@@ -155,12 +178,18 @@ async function deleteCustomerAddress(
   );
 
   const payload = (await response.json()) as {
+    errors?: Array<{ message?: string | null } | null>;
     data?: {
       customerAddressDelete?: {
         userErrors?: Array<{ message?: string | null } | null> | null;
       } | null;
     };
   };
+
+  const graphqlError = toFirstGraphqlErrorMessage(payload);
+  if (graphqlError) {
+    throw new Error(graphqlError);
+  }
 
   const userErrors = payload.data?.customerAddressDelete?.userErrors ?? [];
   const firstError = userErrors.find((error) => error?.message)?.message;
